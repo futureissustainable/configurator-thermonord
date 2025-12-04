@@ -99,7 +99,7 @@ html, body {
 
 .screen {
   width: 100%;
-  max-width: 800px;
+  max-width: 1280px;
   display: none;
   animation: fadeIn 0.5s ease;
 }
@@ -247,7 +247,8 @@ html, body {
 
 .fail-screen {
   text-align: center;
-  max-width: 500px;
+  width: 100%;
+  max-width: 600px;
   margin: 0 auto;
 }
 
