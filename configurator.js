@@ -60,7 +60,14 @@ function selectOption(element, category, value) {
   setTimeout(() => {
     state.currentScreen++;
     updateProgress();
-    showScreen(`screen${state.currentScreen}`);
+
+    // After screen 4, go directly to configurator
+    if (state.currentScreen === 5) {
+      showScreen('configurator-screen');
+      WindowConfigurator.init();
+    } else {
+      showScreen(`screen${state.currentScreen}`);
+    }
     updateBackButton();
   }, 300);
 }
@@ -95,13 +102,6 @@ function goToForm() {
   }
 
   window.location.href = `/form?${params.toString()}`;
-}
-
-function showConfigurator() {
-  state.history.push(state.currentScreen);
-  showScreen('configurator-screen');
-  updateBackButton();
-  WindowConfigurator.init();
 }
 
 // Window Configurator Module
