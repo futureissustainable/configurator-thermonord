@@ -97,23 +97,26 @@ html, body {
 /* Main content area */
 .main-content {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: stretch;
   justify-content: center;
   min-height: calc(100vh - 200px);
   padding: 4rem 0;
-}
-
-/* ALL screens use identical width - 90% capped at 1280px */
-.screen {
-  display: none;
   width: 90%;
   max-width: 1280px;
   margin: 0 auto;
+}
+
+/* ALL screens use identical width - 100% of parent (which is 90%/1280px) */
+.screen {
+  display: none;
+  width: 100%;
   animation: fadeIn 0.5s ease;
 }
 
 .screen.active {
   display: block;
+  width: 100%;
 }
 
 @keyframes fadeIn {
@@ -141,166 +144,263 @@ html, body {
   letter-spacing: -0.02em;
 }
 
-.options-grid { display: grid; gap: 1rem; }
+/* Options Grid - Psychology: Gestalt proximity, visual grouping */
+.options-grid {
+  display: grid;
+  gap: 1.5rem;
+  width: 100%;
+}
 .options-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
 .options-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
   .options-grid.cols-2,
   .options-grid.cols-3 { grid-template-columns: 1fr; }
 }
 
+/* Option Cards - Psychology: Fitts's Law (large targets), visual hierarchy, affordance */
 .option-card {
   position: relative;
-  background: #181818;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-top: 3px solid var(--premium-accent-dim);
+  background: linear-gradient(180deg, #1a1a1a 0%, #141414 100%);
+  border: 2px solid rgba(255, 255, 255, 0.08);
   border-radius: 1.5rem;
-  padding: 2rem;
+  padding: 2.5rem 2rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   overflow: hidden;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Glow effect layer */
 .option-card::before {
   content: '';
   position: absolute;
-  inset: -1px;
+  inset: 0;
   border-radius: 1.5rem;
-  background: linear-gradient(135deg, var(--premium-glow) 0%, transparent 50%);
+  background: radial-gradient(ellipse at 50% 0%, rgba(212, 165, 116, 0.08) 0%, transparent 70%);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
   pointer-events: none;
   z-index: 0;
 }
 
+/* Shimmer/highlight effect */
+.option-card::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.03), transparent);
+  transition: left 0.6s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Hover State - Psychology: Feedback, anticipation */
 .option-card:hover {
-  border-color: rgba(212, 165, 116, 0.4);
-  border-top-color: var(--premium-accent);
-  transform: translateY(-4px);
-  background: #1c1c1c;
-  box-shadow: 0 8px 32px rgba(212, 165, 116, 0.12), 0 0 0 1px rgba(212, 165, 116, 0.1);
+  border-color: rgba(212, 165, 116, 0.5);
+  transform: translateY(-8px) scale(1.02);
+  background: linear-gradient(180deg, #1e1e1e 0%, #181818 100%);
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.5),
+    0 8px 25px rgba(212, 165, 116, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 
 .option-card:hover::before {
   opacity: 1;
 }
 
+.option-card:hover::after {
+  left: 100%;
+}
+
+/* Selected State - Psychology: Confirmation, reward */
 .option-card.selected {
   border-color: var(--premium-accent);
-  border-top-color: var(--premium-accent);
-  background: linear-gradient(135deg, #1f1a16 0%, #1a1a1a 100%);
-  box-shadow: 0 8px 40px rgba(212, 165, 116, 0.2), 0 0 0 1px var(--premium-accent);
+  background: linear-gradient(180deg, #231e18 0%, #1a1714 100%);
+  box-shadow:
+    0 15px 50px rgba(212, 165, 116, 0.25),
+    0 0 0 1px var(--premium-accent),
+    inset 0 1px 0 rgba(212, 165, 116, 0.1);
+  transform: translateY(-4px);
 }
 
 .option-card.selected::before {
-  opacity: 0.5;
+  opacity: 1;
+  background: radial-gradient(ellipse at 50% 0%, rgba(212, 165, 116, 0.15) 0%, transparent 60%);
 }
 
-.option-card.selected::after {
-  content: '';
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  width: 24px;
-  height: 24px;
-  background: var(--premium-accent);
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.4);
+/* Check indicator for selected cards */
+.option-card.selected .check-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-
-.option-card.selected .check-icon { display: block; }
 
 .check-icon {
   display: none;
   position: absolute;
   top: 1.25rem;
   right: 1.25rem;
-  width: 24px;
-  height: 24px;
-  z-index: 2;
+  width: 32px;
+  height: 32px;
+  background: var(--premium-accent);
+  border-radius: 50%;
+  box-shadow: 0 4px 15px rgba(212, 165, 116, 0.5);
+  z-index: 3;
+  animation: checkPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.check-icon svg { width: 100%; height: 100%; }
+@keyframes checkPop {
+  0% { transform: scale(0); opacity: 0; }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); opacity: 1; }
+}
 
+.check-icon svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Icon Container - Psychology: Visual anchor, recognition */
 .option-icon {
   position: relative;
   z-index: 1;
-  width: 56px;
-  height: 56px;
-  margin-bottom: 1.5rem;
-  padding: 0.75rem;
-  background: #252525;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 1rem;
-  transition: all 0.3s ease;
+  width: 72px;
+  height: 72px;
+  margin-bottom: 1.75rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #252525 0%, #1f1f1f 100%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.25rem;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
 }
 
 .option-card:hover .option-icon {
-  background: #2a2a2a;
-  border-color: rgba(212, 165, 116, 0.3);
-  box-shadow: 0 0 16px rgba(212, 165, 116, 0.15);
+  background: linear-gradient(135deg, #2d2d2d 0%, #252525 100%);
+  border-color: rgba(212, 165, 116, 0.4);
+  box-shadow:
+    0 8px 30px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(212, 165, 116, 0.2);
+  transform: scale(1.05);
 }
 
 .option-card.selected .option-icon {
-  background: linear-gradient(135deg, #2d261f 0%, #252525 100%);
-  border-color: rgba(212, 165, 116, 0.4);
+  background: linear-gradient(135deg, #3a3020 0%, #2a2518 100%);
+  border-color: rgba(212, 165, 116, 0.6);
+  box-shadow:
+    0 8px 25px rgba(0, 0, 0, 0.4),
+    0 0 25px rgba(212, 165, 116, 0.25);
 }
 
 .option-icon svg {
   width: 100%;
   height: 100%;
-  stroke: var(--text-primary);
+  stroke: var(--text-secondary);
   stroke-width: 1.5;
   fill: none;
+  transition: all 0.3s ease;
 }
 
+.option-card:hover .option-icon svg {
+  stroke: var(--premium-accent);
+}
+
+.option-card.selected .option-icon svg {
+  stroke: var(--premium-accent);
+}
+
+/* Title - Psychology: Visual hierarchy, readability */
 .option-title {
   position: relative;
   z-index: 1;
-  font-size: 1.2rem;
-  font-weight: 300;
-  margin-bottom: 0.5rem;
+  font-size: 1.35rem;
+  font-weight: 400;
+  margin-bottom: 0.6rem;
   color: var(--text-primary);
-  transition: color 0.3s ease;
+  transition: all 0.3s ease;
+  letter-spacing: -0.01em;
 }
 
 .option-card:hover .option-title {
   color: #fff;
 }
 
+.option-card.selected .option-title {
+  color: var(--premium-accent);
+}
+
+/* Description - Psychology: Supporting information, reduces cognitive load */
 .option-description {
   position: relative;
   z-index: 1;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   color: var(--text-secondary);
   font-weight: 200;
-  line-height: 1.5;
+  line-height: 1.6;
+  transition: color 0.3s ease;
+  flex-grow: 1;
 }
 
+.option-card:hover .option-description {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+/* Tags - Psychology: Social proof, urgency, categorization */
 .option-tag {
   position: relative;
   z-index: 1;
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.35rem 0.75rem;
-  background: var(--muted-tag);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 1.25rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 2rem;
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-muted);
-  font-weight: 300;
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
+  transition: all 0.3s ease;
 }
 
 .option-tag.green {
-  background: var(--success-bg);
-  color: var(--success);
+  background: rgba(74, 222, 128, 0.12);
+  border-color: rgba(74, 222, 128, 0.25);
+  color: #6ee7a0;
+  box-shadow: 0 0 20px rgba(74, 222, 128, 0.1);
+}
+
+.option-tag.green::before {
+  content: '✓';
+  font-size: 0.65rem;
 }
 
 .option-tag.yellow {
-  background: var(--warning-bg);
-  color: var(--warning);
+  background: rgba(252, 211, 77, 0.12);
+  border-color: rgba(252, 211, 77, 0.25);
+  color: #fcd861;
+  box-shadow: 0 0 20px rgba(252, 211, 77, 0.1);
+}
+
+.option-card:hover .option-tag.green {
+  background: rgba(74, 222, 128, 0.18);
+  border-color: rgba(74, 222, 128, 0.4);
+  box-shadow: 0 0 25px rgba(74, 222, 128, 0.15);
+}
+
+.option-card:hover .option-tag.yellow {
+  background: rgba(252, 211, 77, 0.18);
+  border-color: rgba(252, 211, 77, 0.4);
+  box-shadow: 0 0 25px rgba(252, 211, 77, 0.15);
 }
 
 .fail-screen {
@@ -780,11 +880,20 @@ input[type="number"] { -moz-appearance: textfield; }
 
 @media (max-width: 768px) {
   .header { width: 92%; padding: 1.5rem 0; }
-  .screen { width: 92%; }
+  .main-content { width: 92%; padding: 2rem 0; }
   .footer { width: 92%; }
-  .main-content { padding: 2rem 0; }
-  .question-title { font-size: 2rem; }
-  .option-card { padding: 1.5rem; }
+  .question-title { font-size: 1.75rem; margin-bottom: 2rem; }
+  .option-card {
+    padding: 1.75rem 1.5rem;
+    min-height: 200px;
+  }
+  .option-icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 1.25rem;
+  }
+  .option-title { font-size: 1.2rem; }
+  .option-description { font-size: 0.9rem; }
   .method-card { padding: 2rem; }
   .back-btn { bottom: 1rem; left: 1rem; }
 }
