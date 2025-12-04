@@ -1,326 +1,588 @@
-<!DOCTYPE html>
-<html lang="ro">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>THERMONORD | Configurator</title>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://futureissustainable.github.io/configurator-thermonord/configurator.css">
-</head>
-<body>
-  <div class="bg-pattern"></div>
-  <div class="bg-gradient"></div>
+// State management
+const state = {
+  currentScreen: 1,
+  totalScreens: 5,
+  selections: {
+    status: null,
+    timeline: null,
+    budget: null,
+    scope: null
+  },
+  history: []
+};
 
-  <div class="configurator">
-    <header class="header">
-      <div class="progress-steps">
-        <span class="progress-step active" data-step="1">Status</span>
-        <span class="progress-step" data-step="2">Timeline</span>
-        <span class="progress-step" data-step="3">Buget</span>
-        <span class="progress-step" data-step="4">Cantitate</span>
-        <span class="progress-step" data-step="5">Configurare</span>
-      </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="progressFill"></div>
-      </div>
-    </header>
+// Progress and navigation functions
+function updateProgress() {
+  const progressFill = document.getElementById('progressFill');
+  const progress = ((state.currentScreen - 1) / state.totalScreens) * 100;
+  progressFill.style.width = `${progress}%`;
 
-    <div class="main-content">
+  document.querySelectorAll('.progress-step').forEach((step, index) => {
+    const stepNum = index + 1;
+    step.classList.remove('active', 'completed');
+    if (stepNum === state.currentScreen) {
+      step.classList.add('active');
+    } else if (stepNum < state.currentScreen) {
+      step.classList.add('completed');
+    }
+  });
+}
 
-      <!-- Screen 1: Status -->
-      <div class="screen active" id="screen1">
-        <span class="question-number">Întrebarea 01</span>
-        <h1 class="question-title">Ai o casă în construcție sau în renovare?</h1>
+function updateBackButton() {
+  const backBtn = document.getElementById('backBtn');
+  if (state.history.length > 0) {
+    backBtn.classList.remove('hidden');
+  } else {
+    backBtn.classList.add('hidden');
+  }
+}
 
-        <div class="options-grid cols-3">
-          <div class="option-card" onclick="selectOption(this, 'status', 'constructie')" data-value="constructie">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <path d="M6 22L24 6l18 16"/>
-                <path d="M10 20v20h28V20"/>
-                <path d="M20 40V28h8v12"/>
-                <path d="M32 14v-4h4v8"/>
-              </svg>
-            </div>
-            <div class="option-title">Construcție Nouă</div>
-            <div class="option-description">Casă în curs de ridicare</div>
-            <span class="option-tag green">Recomandat</span>
-          </div>
+function showScreen(screenId) {
+  document.querySelectorAll('.screen').forEach(screen => {
+    screen.classList.remove('active');
+  });
 
-          <div class="option-card" onclick="selectOption(this, 'status', 'renovare')" data-value="renovare">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <path d="M14 34l-8 8 4 4 8-8"/>
-                <path d="M10 38l20-20"/>
-                <circle cx="34" cy="14" r="10"/>
-                <path d="M30 10l8 8"/>
-                <path d="M38 10l-8 8"/>
-              </svg>
-            </div>
-            <div class="option-title">Renovare</div>
-            <div class="option-description">Înlocuiesc ferestre existente</div>
-            <span class="option-tag green">Recomandat</span>
-          </div>
+  const targetScreen = document.getElementById(screenId);
+  if (targetScreen) {
+    targetScreen.classList.add('active');
+  }
+}
 
-          <div class="option-card" onclick="showFailScreen('no-project')" data-value="none">
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <path d="M24 12C14 12 6 24 6 24s8 12 18 12 18-12 18-12-8-12-18-12z"/>
-                <circle cx="24" cy="24" r="6"/>
-              </svg>
-            </div>
-            <div class="option-title">Nu am un proiect</div>
-            <div class="option-description">Doar explorez</div>
-          </div>
+function selectOption(element, category, value) {
+  element.parentElement.querySelectorAll('.option-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+
+  element.classList.add('selected');
+  state.selections[category] = value;
+  state.history.push(state.currentScreen);
+
+  setTimeout(() => {
+    state.currentScreen++;
+    updateProgress();
+    showScreen(`screen${state.currentScreen}`);
+    updateBackButton();
+  }, 300);
+}
+
+function showFailScreen(type) {
+  state.history.push(state.currentScreen);
+  showScreen(`fail-${type}`);
+  updateBackButton();
+}
+
+function goBack() {
+  if (state.history.length > 0) {
+    const prevScreen = state.history.pop();
+    state.currentScreen = prevScreen;
+    updateProgress();
+    showScreen(`screen${prevScreen}`);
+    updateBackButton();
+  }
+}
+
+function goToForm() {
+  const params = new URLSearchParams();
+  Object.entries(state.selections).forEach(([key, value]) => {
+    if (value) params.set(key, value);
+  });
+
+  if (typeof WindowConfigurator !== 'undefined') {
+    const configData = WindowConfigurator.getFormData();
+    if (configData.products) params.set('PRODUCTS', configData.products);
+    if (configData.total) params.set('TOTAL', configData.total);
+    if (configData.count) params.set('PRODUCT_COUNT', configData.count);
+  }
+
+  window.location.href = `/form?${params.toString()}`;
+}
+
+function showConfigurator() {
+  state.history.push(state.currentScreen);
+  showScreen('configurator-screen');
+  updateBackButton();
+  WindowConfigurator.init();
+}
+
+// Window Configurator Module
+const WindowConfigurator = (function() {
+  const productTypes = [
+    { name: "Ramă Fixă", price: 245, image: "https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691302224093ef3c30939e72_Thermonord%20Tripan%20FIX.avif", hasOpening: false, typeId: 'fixed' },
+    { name: "Ramă Fereastră (Deschidere Clasică)", price: 485, image: "https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691302227d7c4d41b1078486_Thermonord%20Tripan%20GEAM%20CLASIC.avif", hasOpening: true, typeId: 'classic' },
+    { name: "Ramă Fereastră (Oscilobatantă)", price: 515, image: "https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/69130220a3a0f59d430752dc_Thermonord%20Tripan%20OSCILOBATANT.avif", hasOpening: true, typeId: 'tilt_turn' },
+    { name: "Ramă Ușă Intrare", price: 580, image: "https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691302227033c8b97f33857b_Thermonord%20Tripan%20USA.avif", hasOpening: true, typeId: 'door_simple' },
+    { name: "Ramă Ușă Glisantă", price: 695, image: "https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/69130222c4dd8d5da11bdab3_Thermonord%20Tripan%20SLIDE.avif", hasOpening: true, typeId: 'slide' },
+  ];
+
+  const glassTypes = [
+    { name: "Fără sticlă", price: 0 },
+    { name: "Tripan Securizat + Laminat", price: 0 }
+  ];
+
+  const colorOptions = [
+    { name: "Antracit" },
+    { name: "Altă culoare (Comandă specială)" }
+  ];
+
+  let products = [];
+
+  function init() {
+    products = [{
+      id: Date.now().toString(),
+      type: productTypes[0].name,
+      typeId: productTypes[0].typeId,
+      price: productTypes[0].price,
+      image: productTypes[0].image,
+      hasOpening: productTypes[0].hasOpening,
+      opening: "Stânga",
+      color: colorOptions[0].name,
+      glassType: glassTypes[1].name,
+      width: 0,
+      height: 0
+    }];
+    render();
+  }
+
+  function render() {
+    renderProducts();
+    renderVisuals();
+    updateSummary();
+  }
+
+  function renderProducts() {
+    const container = document.getElementById('products-container');
+    if (!container) return;
+
+    container.innerHTML = products.map((product, index) => {
+      const currentProductType = productTypes.find(t => t.name === product.type);
+      const isCustomColor = product.color === "Altă culoare (Comandă specială)";
+
+      return `
+      <div class="product-card" id="card-${product.id}">
+        <div class="product-header">
+          <div class="product-number">${index + 1}</div>
+          <div class="product-title">Produs ${index + 1}</div>
+          ${products.length > 1 ? `
+            <button class="icon-btn" style="margin-left: auto;" onclick="WindowConfigurator.removeProduct('${product.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+            </button>
+          ` : ''}
         </div>
-      </div>
 
-      <!-- Screen 2: Timeline -->
-      <div class="screen" id="screen2">
-        <span class="question-number">Întrebarea 02</span>
-        <h1 class="question-title">Când ai nevoie de montaj?</h1>
-
-        <div class="options-grid cols-3">
-          <div class="option-card" onclick="selectOption(this, 'timeline', 'urgent')" data-value="urgent">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <path d="M26 4L10 28h12l-2 16 16-24H24l2-16z" fill="none"/>
-              </svg>
-            </div>
-            <div class="option-title">Urgent</div>
-            <div class="option-description">Următoarele 30 zile</div>
-            <span class="option-tag green">Prioritate maximă</span>
+        <div class="input-group">
+          <div class="input-row">
+            <select onchange="WindowConfigurator.updateProductType('${product.id}', this.value)">
+              ${productTypes.map(type => `
+                <option value="${type.name}" ${product.type === type.name ? 'selected' : ''}>
+                  ${type.name}
+                </option>
+              `).join('')}
+            </select>
+            <button class="icon-btn" onclick="window.open('https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691479db3bd4cdcdba58b6eb_RAME%20Thermonord%20GENESIS%2090.pdf', '_blank')">?</button>
           </div>
 
-          <div class="option-card" onclick="selectOption(this, 'timeline', 'curand')" data-value="curand">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <rect x="8" y="10" width="32" height="32" rx="3"/>
-                <path d="M16 6v8M32 6v8M8 18h32"/>
-                <circle cx="24" cy="30" r="4"/>
-              </svg>
-            </div>
-            <div class="option-title">Curând</div>
-            <div class="option-description">Următoarele 3 luni</div>
-            <span class="option-tag yellow">Planificare</span>
+          <div class="input-row">
+            <select onchange="WindowConfigurator.updateGlassType('${product.id}', this.value)">
+              ${glassTypes.map(glass => `
+                <option value="${glass.name}" ${product.glassType === glass.name ? 'selected' : ''}>
+                  ${glass.name}
+                </option>
+              `).join('')}
+            </select>
+            <button class="icon-btn" onclick="window.open('https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691479db3bd4cdcdba58b6e1_GLASS%20Thermonord%20Tripan%20Securizat%20%2B%20Laminat.pdf', '_blank')">?</button>
           </div>
 
-          <div class="option-card" onclick="selectOption(this, 'timeline', 'later')" data-value="later">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <path d="M14 8h20M14 40h20"/>
-                <path d="M16 8v8c0 4 8 8 8 8s8-4 8-8V8"/>
-                <path d="M16 40v-8c0-4 8-8 8-8s8 4 8 8v8"/>
-              </svg>
-            </div>
-            <div class="option-title">Nu acum</div>
-            <div class="option-description">Peste 3+ luni</div>
-          </div>
-        </div>
-      </div>
+          <hr class="divider">
 
-      <!-- Screen 3: Budget -->
-      <div class="screen" id="screen3">
-        <span class="question-number">Întrebarea 03</span>
-        <h1 class="question-title">Care este bugetul estimat pentru tâmplărie?</h1>
+          <select onchange="WindowConfigurator.updateColor('${product.id}', this.value)">
+            ${colorOptions.map(color => `
+              <option value="${color.name}" ${product.color === color.name ? 'selected' : ''}>
+                ${color.name}
+              </option>
+            `).join('')}
+          </select>
 
-        <div class="options-grid cols-3">
-          <div class="option-card" onclick="showFailScreen('low-budget')" data-value="low">
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <circle cx="24" cy="24" r="16"/>
-                <path d="M24 14v20M18 20h12M18 28h12"/>
-              </svg>
+          ${isCustomColor ? `
+            <input type="text"
+                   placeholder="Specificați culoarea (ex: RAL 7016)"
+                   value="${product.customColorNote || ''}"
+                   oninput="WindowConfigurator.updateProduct('${product.id}', 'customColorNote', this.value)">
+          ` : ''}
+
+          ${currentProductType && currentProductType.hasOpening ? `
+            <select onchange="WindowConfigurator.updateOpening('${product.id}', this.value)">
+              <option value="Stânga" ${product.opening === 'Stânga' ? 'selected' : ''}>Deschidere stânga</option>
+              <option value="Dreapta" ${product.opening === 'Dreapta' ? 'selected' : ''}>Deschidere dreapta</option>
+            </select>
+          ` : ''}
+
+          <div class="grid-2">
+            <div class="input-wrapper">
+              <input type="number" value="${product.width || ''}" oninput="WindowConfigurator.updateProduct('${product.id}', 'width', this.value)" placeholder="Lățime">
+              <span class="input-suffix">cm</span>
             </div>
-            <div class="option-title">Sub 2.500 EUR</div>
-            <div class="option-description">Buget limitat</div>
-          </div>
-
-          <div class="option-card" onclick="selectOption(this, 'budget', 'medium')" data-value="medium">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <ellipse cx="24" cy="32" rx="14" ry="6"/>
-                <path d="M10 32v-6c0-3.3 6.3-6 14-6s14 2.7 14 6v6"/>
-                <ellipse cx="24" cy="26" rx="14" ry="6"/>
-                <path d="M10 26v-6c0-3.3 6.3-6 14-6s14 2.7 14 6v6"/>
-                <ellipse cx="24" cy="20" rx="14" ry="6"/>
-              </svg>
-            </div>
-            <div class="option-title">2.500 - 5.000 EUR</div>
-            <div class="option-description">Proiect standard</div>
-            <span class="option-tag yellow">Proiect mic</span>
-          </div>
-
-          <div class="option-card" onclick="selectOption(this, 'budget', 'high')" data-value="high">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <rect x="8" y="28" width="8" height="14"/>
-                <rect x="20" y="18" width="8" height="24"/>
-                <rect x="32" y="8" width="8" height="34"/>
-              </svg>
-            </div>
-            <div class="option-title">Peste 5.000 EUR</div>
-            <div class="option-description">Proiect mare</div>
-            <span class="option-tag green">Proiect mare</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Screen 4: Scope -->
-      <div class="screen" id="screen4">
-        <span class="question-number">Întrebarea 04</span>
-        <h1 class="question-title">Aproximativ câte ferestre/uși conține proiectul?</h1>
-
-        <div class="options-grid cols-3">
-          <div class="option-card" onclick="selectOption(this, 'scope', 'small')" data-value="small">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <rect x="12" y="8" width="24" height="32" rx="2"/>
-                <path d="M12 24h24M24 8v32"/>
-              </svg>
-            </div>
-            <div class="option-title">1-5 bucăți</div>
-            <div class="option-description">Proiect mic</div>
-          </div>
-
-          <div class="option-card" onclick="selectOption(this, 'scope', 'medium')" data-value="medium">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <rect x="6" y="10" width="16" height="20" rx="1"/>
-                <path d="M6 20h16M14 10v20"/>
-                <rect x="26" y="10" width="16" height="20" rx="1"/>
-                <path d="M26 20h16M34 10v20"/>
-              </svg>
-            </div>
-            <div class="option-title">5-10 bucăți</div>
-            <div class="option-description">Casă standard</div>
-            <span class="option-tag yellow">Standard</span>
-          </div>
-
-          <div class="option-card" onclick="selectOption(this, 'scope', 'large')" data-value="large">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <rect x="8" y="6" width="32" height="36" rx="2"/>
-                <rect x="12" y="10" width="8" height="8"/>
-                <rect x="28" y="10" width="8" height="8"/>
-                <rect x="12" y="22" width="8" height="8"/>
-                <rect x="28" y="22" width="8" height="8"/>
-                <rect x="20" y="34" width="8" height="8"/>
-              </svg>
-            </div>
-            <div class="option-title">15+ bucăți</div>
-            <div class="option-description">Casă mare</div>
-            <span class="option-tag green">Complet</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Fail Screen: No Project -->
-      <div class="screen" id="fail-no-project">
-        <div class="fail-screen">
-          <div class="fail-icon">
-            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="24" cy="24" r="20"/>
-              <path d="M24 14v12"/>
-              <circle cx="24" cy="32" r="2" fill="currentColor"/>
-            </svg>
-          </div>
-          <h2 class="fail-title">Încă nu ai un proiect?</h2>
-          <p class="fail-text">Revino când începi construcția sau renovarea. Suntem aici să te ajutăm cu ferestre Passivhaus de cea mai înaltă calitate.</p>
-          <a href="/" class="fail-cta">
-            Înapoi la pagina principală
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-        </div>
-      </div>
-
-      <!-- Fail Screen: Low Budget -->
-      <div class="screen" id="fail-low-budget">
-        <div class="fail-screen">
-          <div class="fail-icon">
-            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="24" cy="24" r="20"/>
-              <path d="M24 14v20M18 20h12"/>
-            </svg>
-          </div>
-          <h2 class="fail-title">Bugetul minim este 2.500 EUR</h2>
-          <p class="fail-text">Ferestrele THERMONORD sunt certificate Passivhaus și reprezintă o investiție în eficiența energetică pe termen lung.</p>
-          <a href="/" class="fail-cta">
-            Află mai multe
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-        </div>
-      </div>
-
-      <!-- Configurator Screen -->
-      <div class="screen" id="configurator-screen">
-        <div class="configurator-section">
-          <div class="configurator-grid">
-            <div class="visuals-column" id="visuals-container"></div>
-            <div class="config-column">
-              <div id="products-container"></div>
-
-              <button class="add-btn" onclick="WindowConfigurator.addProduct()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-                Adaugă produs
-              </button>
-
-              <div class="summary-card">
-                <div class="summary-items" id="summary-items"></div>
-                <div class="summary-total">
-                  TOTAL: <span id="total">0.00</span> EUR<span class="summary-tva">+ TVA</span>
-                </div>
-                <button class="cta-btn" onclick="goToForm()">
-                  SECURIZEAZA OFERTA
-                </button>
-              </div>
+            <div class="input-wrapper">
+              <input type="number" value="${product.height || ''}" oninput="WindowConfigurator.updateProduct('${product.id}', 'height', this.value)" placeholder="Înălțime">
+              <span class="input-suffix">cm</span>
             </div>
           </div>
         </div>
       </div>
+    `}).join('');
+  }
 
-    </div>
+  function renderVisuals() {
+    const container = document.getElementById('visuals-container');
+    if (!container) return;
 
-    <footer class="footer">
-      <a href="https://thermonord.com" class="footer-link">THERMONORD.COM</a>
-    </footer>
-  </div>
+    while(container.children.length > products.length) {
+      container.removeChild(container.lastChild);
+    }
+    while(container.children.length < products.length) {
+      const div = document.createElement('div');
+      div.className = 'visual-card';
+      div.innerHTML = `<img src="" alt=""> <canvas style="display:none;"></canvas>`;
+      container.appendChild(div);
+    }
 
-  <button class="back-btn hidden" id="backBtn" onclick="goBack()">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-    Înapoi
-  </button>
+    Array.from(container.children).forEach((div, index) => {
+      const product = products[index];
+      const img = div.querySelector('img');
+      const canvas = div.querySelector('canvas');
 
-  <script src="https://futureissustainable.github.io/configurator-thermonord/configurator.js"></script>
-</body>
-</html>
+      const hasBothDimensions = product.width > 0 && product.height > 0;
+
+      if (hasBothDimensions) {
+        div.classList.add('visible');
+        img.style.display = 'none';
+        canvas.style.display = 'block';
+        drawWindowDiagram(canvas, product);
+      } else {
+        div.classList.remove('visible');
+        img.style.display = 'none';
+        canvas.style.display = 'none';
+      }
+    });
+  }
+
+  function drawWindowDiagram(canvas, product) {
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+
+    const rect = canvas.parentElement.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+
+    ctx.scale(dpr, dpr);
+    const w = rect.width;
+    const h = rect.height;
+
+    ctx.clearRect(0, 0, w, h);
+
+    const mainColor = '#ffffff';
+    const frameFillColor = '#1a1a1a';
+    const handleColor = '#888888';
+    ctx.lineWidth = 1.2;
+    ctx.lineCap = 'square';
+    ctx.lineJoin = 'miter';
+
+    const inputW = parseFloat(product.width);
+    const inputH = parseFloat(product.height);
+    const padding = 40;
+
+    let drawW, drawH;
+    const availableW = w - (padding * 2);
+    const availableH = h - (padding * 2);
+    const inputRatio = inputW / inputH;
+    const canvasRatio = availableW / availableH;
+
+    if (inputRatio > canvasRatio) {
+      drawW = availableW;
+      drawH = availableW / inputRatio;
+    } else {
+      drawH = availableH;
+      drawW = availableH * inputRatio;
+    }
+
+    const startX = (w - drawW) / 2;
+    const startY = (h - drawH) / 2;
+
+    const frameThick = Math.min(drawW, drawH) * 0.06;
+    const innerX = startX + frameThick;
+    const innerY = startY + frameThick;
+    const innerW = drawW - (frameThick * 2);
+    const innerH = drawH - (frameThick * 2);
+
+    ctx.fillStyle = frameFillColor;
+    ctx.fillRect(startX, startY, drawW, drawH);
+
+    const glassGradient = ctx.createLinearGradient(innerX, innerY, innerX, innerY + innerH);
+    glassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
+    glassGradient.addColorStop(1, 'rgba(200, 200, 220, 0.05)');
+    ctx.fillStyle = glassGradient;
+    ctx.fillRect(innerX, innerY, innerW, innerH);
+
+    ctx.strokeStyle = mainColor;
+    ctx.strokeRect(startX, startY, drawW, drawH);
+
+    if (product.typeId === 'slide') {
+      const midX = innerX + (innerW / 2);
+      ctx.strokeRect(innerX, innerY, innerW / 2, innerH);
+      ctx.strokeRect(midX, innerY, innerW / 2, innerH);
+      ctx.beginPath();
+      ctx.moveTo(startX, startY + drawH - (frameThick/3));
+      ctx.lineTo(startX + drawW, startY + drawH - (frameThick/3));
+      ctx.strokeStyle = "rgba(255,255,255,0.2)";
+      ctx.stroke();
+      ctx.strokeStyle = mainColor;
+    } else {
+      ctx.strokeRect(innerX, innerY, innerW, innerH);
+    }
+
+    if (product.hasOpening) {
+      ctx.beginPath();
+      const isLeft = product.opening === 'Stânga';
+
+      if (['classic', 'door_simple', 'door_osc', 'tilt_turn'].includes(product.typeId)) {
+        if (isLeft) {
+          ctx.moveTo(innerX, innerY);
+          ctx.lineTo(innerX + innerW, innerY + (innerH / 2));
+          ctx.lineTo(innerX, innerY + innerH);
+        } else {
+          ctx.moveTo(innerX + innerW, innerY);
+          ctx.lineTo(innerX, innerY + (innerH / 2));
+          ctx.lineTo(innerX + innerW, innerY + innerH);
+        }
+      }
+
+      if (['door_osc', 'tilt_turn'].includes(product.typeId)) {
+        ctx.moveTo(innerX, innerY + innerH);
+        ctx.lineTo(innerX + (innerW / 2), innerY);
+        ctx.lineTo(innerX + innerW, innerY + innerH);
+      }
+      ctx.stroke();
+
+      if (product.typeId === 'slide') {
+        const arrowY = innerY + (innerH / 2);
+        const arrowLen = Math.min(innerW, innerH) * 0.15;
+        const arrowHeadSize = arrowLen * 0.4;
+
+        let arrowStartX, arrowEndX;
+
+        if (isLeft) {
+          const paneCenter = innerX + (innerW/4);
+          arrowStartX = paneCenter - (arrowLen/2);
+          arrowEndX = paneCenter + (arrowLen/2);
+
+          ctx.beginPath();
+          ctx.moveTo(arrowStartX, arrowY);
+          ctx.lineTo(arrowEndX, arrowY);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(arrowEndX, arrowY);
+          ctx.lineTo(arrowEndX - arrowHeadSize, arrowY - (arrowHeadSize/2));
+          ctx.lineTo(arrowEndX - arrowHeadSize, arrowY + (arrowHeadSize/2));
+          ctx.fillStyle = mainColor;
+          ctx.fill();
+        } else {
+          const paneCenter = innerX + innerW - (innerW/4);
+          arrowStartX = paneCenter + (arrowLen/2);
+          arrowEndX = paneCenter - (arrowLen/2);
+
+          ctx.beginPath();
+          ctx.moveTo(arrowStartX, arrowY);
+          ctx.lineTo(arrowEndX, arrowY);
+          ctx.stroke();
+
+          ctx.beginPath();
+          ctx.moveTo(arrowEndX, arrowY);
+          ctx.lineTo(arrowEndX + arrowHeadSize, arrowY - (arrowHeadSize/2));
+          ctx.lineTo(arrowEndX + arrowHeadSize, arrowY + (arrowHeadSize/2));
+          ctx.fillStyle = mainColor;
+          ctx.fill();
+        }
+      }
+
+      ctx.fillStyle = handleColor;
+
+      if (product.typeId === 'slide') {
+        const handleH = innerH * 0.4;
+        const handleW = Math.max(4, innerW * 0.015);
+        const handleY = innerY + (innerH / 2) - (handleH / 2);
+        let handleX;
+
+        if (isLeft) {
+          handleX = innerX + (innerW/4) - (handleW/2);
+        } else {
+          handleX = innerX + innerW - (innerW/4) - (handleW/2);
+        }
+
+        ctx.beginPath();
+        ctx.roundRect(handleX, handleY, handleW, handleH, handleW);
+        ctx.fill();
+      } else {
+        const handleH = Math.max(20, innerH * 0.15);
+        const handleW = handleH / 4;
+        const handleY = innerY + (innerH / 2) - (handleH / 2);
+        let handleX;
+
+        if (isLeft) {
+          handleX = innerX + innerW - (handleW * 1.5);
+        } else {
+          handleX = innerX + (handleW * 0.5);
+        }
+
+        ctx.beginPath();
+        ctx.roundRect(handleX, handleY, handleW, handleH, handleW/2);
+        ctx.fill();
+      }
+    }
+  }
+
+  function addProduct() {
+    products.push({
+      id: Date.now().toString(),
+      type: productTypes[0].name,
+      typeId: productTypes[0].typeId,
+      price: productTypes[0].price,
+      image: productTypes[0].image,
+      hasOpening: productTypes[0].hasOpening,
+      opening: "Stânga",
+      color: colorOptions[0].name,
+      glassType: glassTypes[1].name,
+      width: 0,
+      height: 0
+    });
+    render();
+  }
+
+  function removeProduct(id) {
+    products = products.filter(p => p.id !== id);
+    render();
+  }
+
+  function updateProduct(id, field, value) {
+    products = products.map(p => {
+      if (p.id === id) {
+        const finalVal = (field === 'width' || field === 'height') ? Number(value) : value;
+        return { ...p, [field]: finalVal };
+      }
+      return p;
+    });
+    renderVisuals();
+    updateSummary();
+  }
+
+  function updateProductType(id, typeName) {
+    const selectedType = productTypes.find(t => t.name === typeName);
+    products = products.map(p => {
+      if (p.id === id) {
+        return {
+          ...p,
+          type: typeName,
+          typeId: selectedType.typeId,
+          price: selectedType.price,
+          image: selectedType.image,
+          hasOpening: selectedType.hasOpening
+        };
+      }
+      return p;
+    });
+    render();
+  }
+
+  function updateGlassType(id, glassName) {
+    products = products.map(p => {
+      if (p.id === id) return { ...p, glassType: glassName };
+      return p;
+    });
+    updateSummary();
+  }
+
+  function updateColor(id, colorName) {
+    products = products.map(p => {
+      if (p.id === id) return { ...p, color: colorName };
+      return p;
+    });
+    renderProducts();
+    updateSummary();
+  }
+
+  function updateOpening(id, openingDir) {
+    products = products.map(p => {
+      if (p.id === id) return { ...p, opening: openingDir };
+      return p;
+    });
+    renderVisuals();
+    updateSummary();
+  }
+
+  function updateSummary() {
+    const summaryContainer = document.getElementById('summary-items');
+    if (!summaryContainer) return;
+
+    summaryContainer.innerHTML = products.map((product, index) => {
+      const sqm = (product.width * product.height) / 10000;
+      const itemTotal = sqm * product.price;
+      const openingText = product.hasOpening ? ` - ${product.opening}` : '';
+
+      let colorDisplay = product.color;
+      if (product.color.includes("Altă culoare") && product.customColorNote) {
+        colorDisplay = `Custom: ${product.customColorNote}`;
+      }
+
+      return `<div class="summary-item">${index + 1}. ${product.type}<br><span class="summary-details">${product.glassType} - ${colorDisplay}${openingText} - L:${product.width}cm x H:${product.height}cm - ${itemTotal.toFixed(2)} EUR</span></div>`;
+    }).join('');
+
+    const total = products.reduce((sum, product) => {
+      const sqm = (product.width * product.height) / 10000;
+      return sum + (sqm * product.price);
+    }, 0);
+
+    document.getElementById('total').textContent = total.toFixed(2);
+  }
+
+  function getFormData() {
+    const productsString = products.map((product, index) => {
+      const sqm = (product.width * product.height) / 10000;
+      const itemTotal = sqm * product.price;
+      const openingText = product.hasOpening ? ` - ${product.opening}` : '';
+
+      let colorDisplay = product.color;
+      if (product.color.includes("Altă culoare") && product.customColorNote) {
+        colorDisplay = `Custom: ${product.customColorNote}`;
+      }
+
+      return `${index + 1}. ${product.type} - ${product.glassType} - ${colorDisplay}${openingText} - L:${product.width}cm x H:${product.height}cm - ${itemTotal.toFixed(2)} EUR`;
+    }).join('\n');
+
+    const total = products.reduce((sum, product) => {
+      const sqm = (product.width * product.height) / 10000;
+      return sum + (sqm * product.price);
+    }, 0);
+
+    return {
+      products: productsString,
+      total: total.toFixed(2),
+      count: products.length.toString()
+    };
+  }
+
+  return {
+    init,
+    addProduct,
+    removeProduct,
+    updateProduct,
+    updateProductType,
+    updateGlassType,
+    updateColor,
+    updateOpening,
+    getFormData
+  };
+})();
+
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+  updateProgress();
+});
