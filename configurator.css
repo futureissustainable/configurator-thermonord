@@ -144,14 +144,15 @@ html, body {
   .options-grid.cols-3 { grid-template-columns: 1fr; }
 }
 
-/* Option Cards - Static visibility with color */
+/* Option Cards - Gradient backgrounds by priority */
 .option-card {
   position: relative;
   background: linear-gradient(180deg, rgba(239, 68, 68, 0.06) 0%, rgba(239, 68, 68, 0.02) 100%);
-  border: 2px solid var(--premium-accent);
+  border: 2px solid rgba(255, 255, 255, 0.1);
   border-radius: 1rem;
   padding: 2rem;
   cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 /* Yellow tagged cards - medium priority */
@@ -165,13 +166,12 @@ html, body {
 }
 
 .option-card:hover {
-  background: #211e1a;
   border-color: var(--premium-accent);
 }
 
 .option-card.selected {
-  background: #28231d;
   border-color: var(--premium-accent);
+  background: #28231d;
 }
 
 .option-card.selected .check-icon {
@@ -205,11 +205,7 @@ html, body {
   background: #1f1d1b;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.75rem;
-}
-
-/* Icon in green-tagged cards */
-.option-card:has(.option-tag.green) .option-icon {
-  border-color: var(--premium-accent);
+  transition: border-color 0.2s ease;
 }
 
 .option-card:hover .option-icon {
@@ -222,11 +218,7 @@ html, body {
   stroke: var(--text-secondary);
   stroke-width: 1.5;
   fill: none;
-}
-
-/* SVG in green-tagged cards */
-.option-card:has(.option-tag.green) .option-icon svg {
-  stroke: var(--premium-accent);
+  transition: stroke 0.2s ease;
 }
 
 .option-card:hover .option-icon svg {
