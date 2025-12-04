@@ -1,7 +1,7 @@
 // State management
 const state = {
   currentScreen: 1,
-  totalScreens: 5,
+  totalScreens: 4,
   selections: {
     status: null,
     timeline: null,
@@ -60,7 +60,13 @@ function selectOption(element, category, value) {
   setTimeout(() => {
     state.currentScreen++;
     updateProgress();
-    showScreen(`screen${state.currentScreen}`);
+
+    // After last question (screen 4), go to configurator
+    if (state.currentScreen > state.totalScreens) {
+      showConfigurator();
+    } else {
+      showScreen(`screen${state.currentScreen}`);
+    }
     updateBackButton();
   }, 300);
 }
@@ -76,6 +82,7 @@ function goBack() {
     const prevScreen = state.history.pop();
     state.currentScreen = prevScreen;
     updateProgress();
+    showHeader();
     showScreen(`screen${prevScreen}`);
     updateBackButton();
   }
@@ -98,10 +105,15 @@ function goToForm() {
 }
 
 function showConfigurator() {
-  state.history.push(state.currentScreen);
+  // Hide header when showing configurator
+  document.querySelector('.header').style.display = 'none';
   showScreen('configurator-screen');
   updateBackButton();
   WindowConfigurator.init();
+}
+
+function showHeader() {
+  document.querySelector('.header').style.display = 'flex';
 }
 
 // Window Configurator Module
