@@ -127,7 +127,7 @@ html, body {
   letter-spacing: -0.02em;
 }
 
-.options-grid { display: grid; gap: 1rem; }
+.options-grid { display: grid; gap: 1rem; width: 100%; }
 .options-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
 .options-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 
@@ -138,7 +138,7 @@ html, body {
 
 .option-card {
   position: relative;
-  background: var(--bg-card);
+  background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, var(--bg-card) 50%);
   border: 1px solid var(--border);
   border-radius: 1.5rem;
   padding: 2rem;
@@ -151,7 +151,7 @@ html, body {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 50%);
+  background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 40%);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -159,13 +159,14 @@ html, body {
 .option-card:hover {
   border-color: var(--border-hover);
   transform: translateY(-2px);
+  background: linear-gradient(180deg, rgba(255,255,255,0.07) 0%, var(--bg-card) 50%);
 }
 
 .option-card:hover::before { opacity: 1; }
 
 .option-card.selected {
   border-color: var(--text-primary);
-  background: var(--bg-elevated);
+  background: linear-gradient(180deg, rgba(255,255,255,0.08) 0%, var(--bg-elevated) 50%);
 }
 
 .option-card.selected::after {
@@ -194,10 +195,17 @@ html, body {
 .check-icon svg { width: 100%; height: 100%; }
 
 .option-icon {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   margin-bottom: 1.5rem;
-  opacity: 0.9;
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 1rem;
+  transition: background 0.3s ease;
+}
+
+.option-card:hover .option-icon {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .option-icon svg {
@@ -249,7 +257,6 @@ html, body {
   text-align: center;
   width: 100%;
   max-width: 600px;
-  margin: 0 auto;
 }
 
 .fail-icon {
@@ -298,6 +305,7 @@ html, body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -378,8 +386,6 @@ html, body {
 /* Configurator */
 .configurator-section {
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
 }
 
 .configurator-grid {
@@ -387,6 +393,7 @@ html, body {
   flex-direction: row-reverse;
   gap: 4rem;
   align-items: start;
+  width: 100%;
 }
 
 @media (max-width: 1024px) {
@@ -399,14 +406,18 @@ html, body {
 .visuals-column {
   position: sticky;
   top: 2rem;
-  display: none;
+  display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 0;
   min-width: 0;
+  width: 0;
+  overflow: hidden;
+  transition: flex 0.4s ease, width 0.4s ease;
 }
 
 .visuals-column.has-visuals {
-  display: flex;
+  flex: 1;
+  width: auto;
 }
 
 .visual-card {
@@ -453,6 +464,8 @@ html, body {
   gap: 1.5rem;
   flex: 1;
   min-width: 0;
+  width: 100%;
+  transition: flex 0.4s ease;
 }
 
 #products-container {
