@@ -99,10 +99,11 @@ html, body {
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  justify-content: flex-start;
-  min-height: calc(100vh - 50px);
+  justify-content: center;
+  flex: 1;
+  min-height: calc(100vh - 100px);
   height: 100%;
-  padding: 4rem 0 0 0;
+  padding: 0;
   width: 100%;
   max-width: 100%;
   margin: 0;
@@ -112,6 +113,7 @@ html, body {
 .screen {
   display: none;
   width: 100%;
+  padding: 4rem 0;
   animation: fadeIn 0.5s ease;
 }
 
@@ -995,7 +997,8 @@ input[type="number"] { -moz-appearance: textfield; }
 
 @media (max-width: 768px) {
   .header { width: 100%; padding: 0.25rem 0 0.15rem 0; }
-  .main-content { width: 100%; padding: 1.5rem 0 0 0; }
+  .main-content { width: 100%; }
+  .screen { padding: 2rem 0; }
   .footer { width: 100%; }
   .question-title { font-size: 1.75rem; margin-bottom: 0.75rem; }
   .option-card {
