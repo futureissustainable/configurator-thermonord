@@ -144,24 +144,22 @@ html, body {
   .options-grid.cols-3 { grid-template-columns: 1fr; }
 }
 
-/* Option Cards - Clean, performant, psychology-based colors */
+/* Option Cards - Static visibility with color */
 .option-card {
   position: relative;
-  background: #161616;
-  border: 2px solid var(--premium-accent-dim);
+  background: #1a1816;
+  border: 2px solid var(--premium-accent);
   border-radius: 1rem;
   padding: 2rem;
   cursor: pointer;
 }
 
 .option-card:hover {
-  border-color: var(--premium-accent);
-  background: #1a1a1a;
+  background: #211e1a;
 }
 
 .option-card.selected {
-  border-color: var(--premium-accent);
-  background: #1e1915;
+  background: #28231d;
 }
 
 .option-card.selected .check-icon {
@@ -192,14 +190,9 @@ html, body {
   height: 56px;
   margin-bottom: 1.25rem;
   padding: 0.75rem;
-  background: #222;
-  border: 1px solid var(--premium-accent-dim);
+  background: #252220;
+  border: 1px solid var(--premium-accent);
   border-radius: 0.75rem;
-}
-
-.option-card:hover .option-icon,
-.option-card.selected .option-icon {
-  border-color: var(--premium-accent);
 }
 
 .option-icon svg {
