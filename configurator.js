@@ -1,7 +1,7 @@
 // State management
 const state = {
   currentScreen: 1,
-  totalScreens: 5,
+  totalScreens: 4,
   selections: {
     status: null,
     timeline: null,
@@ -61,8 +61,9 @@ function selectOption(element, category, value) {
     state.currentScreen++;
     updateProgress();
 
-    // After screen 4, go directly to configurator
-    if (state.currentScreen === 5) {
+    // After screen 4, go to configurator and hide header
+    if (state.currentScreen > 4) {
+      document.querySelector('.header').style.display = 'none';
       showScreen('configurator-screen');
       WindowConfigurator.init();
     } else {
@@ -82,6 +83,7 @@ function goBack() {
   if (state.history.length > 0) {
     const prevScreen = state.history.pop();
     state.currentScreen = prevScreen;
+    document.querySelector('.header').style.display = '';
     updateProgress();
     showScreen(`screen${prevScreen}`);
     updateBackButton();
