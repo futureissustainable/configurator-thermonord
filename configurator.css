@@ -127,7 +127,7 @@ html, body {
   letter-spacing: -0.02em;
 }
 
-.options-grid { display: grid; gap: 1rem; }
+.options-grid { display: grid; gap: 1rem; width: 100%; }
 .options-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
 .options-grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
 
@@ -249,7 +249,6 @@ html, body {
   text-align: center;
   width: 100%;
   max-width: 600px;
-  margin: 0 auto;
 }
 
 .fail-icon {
@@ -298,6 +297,7 @@ html, body {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1.5rem;
+  width: 100%;
 }
 
 @media (max-width: 768px) {
@@ -378,8 +378,6 @@ html, body {
 /* Configurator */
 .configurator-section {
   width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
 }
 
 .configurator-grid {
@@ -387,6 +385,7 @@ html, body {
   flex-direction: row-reverse;
   gap: 4rem;
   align-items: start;
+  width: 100%;
 }
 
 @media (max-width: 1024px) {
@@ -399,14 +398,18 @@ html, body {
 .visuals-column {
   position: sticky;
   top: 2rem;
-  display: none;
+  display: flex;
   flex-direction: column;
-  flex: 1;
+  flex: 0;
   min-width: 0;
+  width: 0;
+  overflow: hidden;
+  transition: flex 0.4s ease, width 0.4s ease;
 }
 
 .visuals-column.has-visuals {
-  display: flex;
+  flex: 1;
+  width: auto;
 }
 
 .visual-card {
@@ -453,6 +456,8 @@ html, body {
   gap: 1.5rem;
   flex: 1;
   min-width: 0;
+  width: 100%;
+  transition: flex 0.4s ease;
 }
 
 #products-container {
