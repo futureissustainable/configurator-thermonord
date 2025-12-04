@@ -147,17 +147,21 @@ html, body {
 /* Option Cards - Static visibility with color */
 .option-card {
   position: relative;
-  background: #161514;
-  border: 2px solid rgba(255, 255, 255, 0.15);
+  background: linear-gradient(180deg, rgba(239, 68, 68, 0.06) 0%, rgba(239, 68, 68, 0.02) 100%);
+  border: 2px solid var(--premium-accent);
   border-radius: 1rem;
   padding: 2rem;
   cursor: pointer;
 }
 
-/* Cards with green tag (Recomandat) - highlighted like hovered */
+/* Yellow tagged cards - medium priority */
+.option-card:has(.option-tag.yellow) {
+  background: linear-gradient(180deg, rgba(252, 211, 77, 0.1) 0%, rgba(252, 211, 77, 0.03) 100%);
+}
+
+/* Green tagged cards - recommended/high priority */
 .option-card:has(.option-tag.green) {
-  background: #1e1a16;
-  border-color: var(--premium-accent);
+  background: linear-gradient(180deg, rgba(74, 222, 128, 0.12) 0%, rgba(74, 222, 128, 0.04) 100%);
 }
 
 .option-card:hover {
