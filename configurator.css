@@ -889,6 +889,107 @@ input[type="number"] { -moz-appearance: textfield; }
 
 .add-btn:hover { color: var(--text-primary); }
 
+/* Select highlight wrapper with path-tracing animation */
+.select-highlight-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.select-highlight-wrapper select {
+  position: relative;
+  z-index: 1;
+}
+
+.select-highlight-border {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
+  color: var(--premium-accent);
+  opacity: 0.8;
+}
+
+.select-highlight-border rect {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 400;
+  stroke-dashoffset: 400;
+  animation: selectHighlightTrace 3s ease-in-out infinite;
+}
+
+@keyframes selectHighlightTrace {
+  0% {
+    stroke-dashoffset: 400;
+    opacity: 0.8;
+  }
+  50% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: -400;
+    opacity: 0.8;
+  }
+}
+
+/* Quantity controls */
+.quantity-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 0;
+}
+
+.quantity-label {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  font-weight: 300;
+}
+
+.quantity-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 2rem;
+  padding: 0.25rem 0.5rem;
+}
+
+.quantity-btn {
+  width: 2rem;
+  height: 2rem;
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.quantity-btn:hover {
+  color: var(--premium-accent);
+  background: var(--accent-dim);
+}
+
+.quantity-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+.quantity-value {
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  min-width: 2rem;
+  text-align: center;
+}
+
 .summary-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
