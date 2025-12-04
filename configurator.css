@@ -53,9 +53,9 @@ html, body {
 }
 
 .header {
-  width: 90%;
-  max-width: 1280px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   padding: 2rem 0;
   display: flex;
   flex-direction: column;
@@ -100,11 +100,12 @@ html, body {
   flex-direction: column;
   align-items: stretch;
   justify-content: center;
-  min-height: calc(100vh - 200px);
-  padding: 4rem 0;
-  width: 90%;
-  max-width: 1280px;
-  margin: 0 auto;
+  min-height: 100vh;
+  height: 100%;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
 }
 
 /* ALL screens use identical width - 100% of parent (which is 90%/1280px) */
@@ -306,14 +307,69 @@ html, body {
   stroke-width: 1.5;
   fill: none;
   transition: all 0.3s ease;
+  animation: iconFloat 3s ease-in-out infinite;
 }
 
 .option-card:hover .option-icon svg {
   stroke: var(--premium-accent);
+  animation: iconPulse 0.6s ease-in-out infinite;
 }
 
 .option-card.selected .option-icon svg {
   stroke: var(--premium-accent);
+  animation: iconGlow 2s ease-in-out infinite;
+}
+
+/* Icon Animations */
+@keyframes iconFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+
+@keyframes iconPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+@keyframes iconGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(212, 165, 116, 0.3));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 15px rgba(212, 165, 116, 0.6));
+    transform: scale(1.05);
+  }
+}
+
+/* Staggered animation delays for visual interest */
+.option-card:nth-child(1) .option-icon svg { animation-delay: 0s; }
+.option-card:nth-child(2) .option-icon svg { animation-delay: 0.2s; }
+.option-card:nth-child(3) .option-icon svg { animation-delay: 0.4s; }
+
+/* Method icon animations */
+.method-icon svg {
+  animation: iconFloat 3s ease-in-out infinite;
+}
+
+.method-card:hover .method-icon svg {
+  animation: iconPulse 0.6s ease-in-out infinite;
+}
+
+/* Fail screen icon animation */
+.fail-icon svg {
+  animation: iconBreathe 2.5s ease-in-out infinite;
+}
+
+@keyframes iconBreathe {
+  0%, 100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+  }
 }
 
 /* Title - Psychology: Visual hierarchy, readability */
@@ -858,9 +914,9 @@ input[type="number"] { -moz-appearance: textfield; }
 .back-btn.hidden { display: none; }
 
 .footer {
-  width: 90%;
-  max-width: 1280px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
   padding: 2rem 0;
   text-align: center;
 }
@@ -879,9 +935,9 @@ input[type="number"] { -moz-appearance: textfield; }
 }
 
 @media (max-width: 768px) {
-  .header { width: 92%; padding: 1.5rem 0; }
-  .main-content { width: 92%; padding: 2rem 0; }
-  .footer { width: 92%; }
+  .header { width: 100%; padding: 1.5rem 0; }
+  .main-content { width: 100%; padding: 0; }
+  .footer { width: 100%; }
   .question-title { font-size: 1.75rem; margin-bottom: 2rem; }
   .option-card {
     padding: 1.75rem 1.5rem;
