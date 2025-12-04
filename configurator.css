@@ -383,15 +383,15 @@ html, body {
 }
 
 .configurator-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: row-reverse;
   gap: 4rem;
   align-items: start;
 }
 
 @media (max-width: 1024px) {
   .configurator-grid {
-    grid-template-columns: 1fr;
+    flex-direction: column;
     gap: 2rem;
   }
 }
@@ -399,8 +399,14 @@ html, body {
 .visuals-column {
   position: sticky;
   top: 2rem;
-  display: flex;
+  display: none;
   flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.visuals-column.has-visuals {
+  display: flex;
 }
 
 .visual-card {
@@ -442,6 +448,14 @@ html, body {
 }
 
 .config-column {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+  min-width: 0;
+}
+
+#products-container {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;

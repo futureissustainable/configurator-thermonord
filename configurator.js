@@ -245,6 +245,7 @@ const WindowConfigurator = (function() {
       container.appendChild(div);
     }
 
+    let hasVisibleCards = false;
     Array.from(container.children).forEach((div, index) => {
       const product = products[index];
       const img = div.querySelector('img');
@@ -257,12 +258,20 @@ const WindowConfigurator = (function() {
         img.style.display = 'none';
         canvas.style.display = 'block';
         drawWindowDiagram(canvas, product);
+        hasVisibleCards = true;
       } else {
         div.classList.remove('visible');
         img.style.display = 'none';
         canvas.style.display = 'none';
       }
     });
+
+    // Toggle visibility class on container
+    if (hasVisibleCards) {
+      container.classList.add('has-visuals');
+    } else {
+      container.classList.remove('has-visuals');
+    }
   }
 
   function drawWindowDiagram(canvas, product) {
