@@ -149,8 +149,9 @@ const WindowConfigurator = (function() {
       opening: "Stânga",
       color: colorOptions[0].name,
       glassType: glassTypes[1].name,
-      width: 0,
-      height: 0
+      width: 100,
+      height: 100,
+      quantity: 1
     }];
     render();
   }
@@ -183,14 +184,32 @@ const WindowConfigurator = (function() {
 
         <div class="input-group">
           <div class="input-row">
-            <select onchange="WindowConfigurator.updateProductType('${product.id}', this.value)">
-              ${productTypes.map(type => `
-                <option value="${type.name}" ${product.type === type.name ? 'selected' : ''}>
-                  ${type.name}
-                </option>
-              `).join('')}
-            </select>
+            <div class="select-highlight-wrapper">
+              <svg class="select-highlight-border" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <rect x="1" y="1" width="98" height="98" rx="16" ry="16" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <select onchange="WindowConfigurator.updateProductType('${product.id}', this.value)">
+                ${productTypes.map(type => `
+                  <option value="${type.name}" ${product.type === type.name ? 'selected' : ''}>
+                    ${type.name}
+                  </option>
+                `).join('')}
+              </select>
+            </div>
             <button class="icon-btn" onclick="window.open('https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691479db3bd4cdcdba58b6eb_RAME%20Thermonord%20GENESIS%2090.pdf', '_blank')">?</button>
+          </div>
+
+          <div class="quantity-row">
+            <span class="quantity-label">Cantitate:</span>
+            <div class="quantity-controls">
+              <button class="quantity-btn" onclick="WindowConfigurator.updateQuantity('${product.id}', -1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
+              </button>
+              <span class="quantity-value">${product.quantity || 1}</span>
+              <button class="quantity-btn" onclick="WindowConfigurator.updateQuantity('${product.id}', 1)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              </button>
+            </div>
           </div>
 
           <div class="input-row">
@@ -463,10 +482,23 @@ const WindowConfigurator = (function() {
       opening: "Stânga",
       color: colorOptions[0].name,
       glassType: glassTypes[1].name,
-      width: 0,
-      height: 0
+      width: 100,
+      height: 100,
+      quantity: 1
     });
     render();
+  }
+
+  function updateQuantity(id, delta) {
+    products = products.map(p => {
+      if (p.id === id) {
+        const newQty = Math.max(1, (p.quantity || 1) + delta);
+        return { ...p, quantity: newQty };
+      }
+      return p;
+    });
+    renderProducts();
+    updateSummary();
   }
 
   function removeProduct(id) {
@@ -536,20 +568,23 @@ const WindowConfigurator = (function() {
 
     summaryContainer.innerHTML = products.map((product, index) => {
       const sqm = (product.width * product.height) / 10000;
-      const itemTotal = sqm * product.price;
+      const qty = product.quantity || 1;
+      const itemTotal = sqm * product.price * qty;
       const openingText = product.hasOpening ? ` - ${product.opening}` : '';
+      const qtyText = qty > 1 ? ` x${qty}` : '';
 
       let colorDisplay = product.color;
       if (product.color.includes("Altă culoare") && product.customColorNote) {
         colorDisplay = `Custom: ${product.customColorNote}`;
       }
 
-      return `<div class="summary-item">${index + 1}. ${product.type}<br><span class="summary-details">${product.glassType} - ${colorDisplay}${openingText} - L:${product.width}cm x H:${product.height}cm - ${itemTotal.toFixed(2)} EUR</span></div>`;
+      return `<div class="summary-item">${index + 1}. ${product.type}${qtyText}<br><span class="summary-details">${product.glassType} - ${colorDisplay}${openingText} - L:${product.width}cm x H:${product.height}cm - ${itemTotal.toFixed(2)} EUR</span></div>`;
     }).join('');
 
     const total = products.reduce((sum, product) => {
       const sqm = (product.width * product.height) / 10000;
-      return sum + (sqm * product.price);
+      const qty = product.quantity || 1;
+      return sum + (sqm * product.price * qty);
     }, 0);
 
     document.getElementById('total').textContent = total.toFixed(2);
@@ -558,26 +593,31 @@ const WindowConfigurator = (function() {
   function getFormData() {
     const productsString = products.map((product, index) => {
       const sqm = (product.width * product.height) / 10000;
-      const itemTotal = sqm * product.price;
+      const qty = product.quantity || 1;
+      const itemTotal = sqm * product.price * qty;
       const openingText = product.hasOpening ? ` - ${product.opening}` : '';
+      const qtyText = qty > 1 ? ` x${qty}` : '';
 
       let colorDisplay = product.color;
       if (product.color.includes("Altă culoare") && product.customColorNote) {
         colorDisplay = `Custom: ${product.customColorNote}`;
       }
 
-      return `${index + 1}. ${product.type} - ${product.glassType} - ${colorDisplay}${openingText} - L:${product.width}cm x H:${product.height}cm - ${itemTotal.toFixed(2)} EUR`;
+      return `${index + 1}. ${product.type}${qtyText} - ${product.glassType} - ${colorDisplay}${openingText} - L:${product.width}cm x H:${product.height}cm - ${itemTotal.toFixed(2)} EUR`;
     }).join('\n');
 
     const total = products.reduce((sum, product) => {
       const sqm = (product.width * product.height) / 10000;
-      return sum + (sqm * product.price);
+      const qty = product.quantity || 1;
+      return sum + (sqm * product.price * qty);
     }, 0);
+
+    const totalQty = products.reduce((sum, p) => sum + (p.quantity || 1), 0);
 
     return {
       products: productsString,
       total: total.toFixed(2),
-      count: products.length.toString()
+      count: totalQty.toString()
     };
   }
 
@@ -590,6 +630,7 @@ const WindowConfigurator = (function() {
     updateGlassType,
     updateColor,
     updateOpening,
+    updateQuantity,
     getFormData
   };
 })();
