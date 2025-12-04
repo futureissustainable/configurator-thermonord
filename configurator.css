@@ -166,10 +166,12 @@ html, body {
 
 .option-card:hover {
   background: #211e1a;
+  border-color: var(--premium-accent);
 }
 
 .option-card.selected {
   background: #28231d;
+  border-color: var(--premium-accent);
 }
 
 .option-card.selected .check-icon {
@@ -200,17 +202,35 @@ html, body {
   height: 56px;
   margin-bottom: 1.25rem;
   padding: 0.75rem;
-  background: #252220;
-  border: 1px solid var(--premium-accent);
+  background: #1f1d1b;
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0.75rem;
+}
+
+/* Icon in green-tagged cards */
+.option-card:has(.option-tag.green) .option-icon {
+  border-color: var(--premium-accent);
+}
+
+.option-card:hover .option-icon {
+  border-color: var(--premium-accent);
 }
 
 .option-icon svg {
   width: 100%;
   height: 100%;
-  stroke: var(--premium-accent);
+  stroke: var(--text-secondary);
   stroke-width: 1.5;
   fill: none;
+}
+
+/* SVG in green-tagged cards */
+.option-card:has(.option-tag.green) .option-icon svg {
+  stroke: var(--premium-accent);
+}
+
+.option-card:hover .option-icon svg {
+  stroke: var(--premium-accent);
 }
 
 /* Title */
