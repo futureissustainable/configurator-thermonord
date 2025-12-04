@@ -56,10 +56,10 @@ html, body {
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: 1rem 0 0.5rem 0;
+  padding: 0.5rem 0 0.25rem 0;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 .progress-track {
@@ -100,9 +100,9 @@ html, body {
   flex-direction: column;
   align-items: stretch;
   justify-content: flex-start;
-  min-height: calc(100vh - 80px);
+  min-height: calc(100vh - 50px);
   height: 100%;
-  padding: 1.5rem 0 0 0;
+  padding: 0.5rem 0 0 0;
   width: 100%;
   max-width: 100%;
   margin: 0;
@@ -132,7 +132,7 @@ html, body {
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.2em;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 .question-title {
@@ -141,7 +141,7 @@ html, body {
   font-size: clamp(2rem, 5vw, 3.2rem);
   font-weight: 200;
   line-height: 1.2;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   letter-spacing: -0.02em;
 }
 
@@ -305,6 +305,8 @@ html, body {
   height: 100%;
   stroke: var(--text-secondary);
   stroke-width: 1.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   fill: none;
   transition: stroke 0.3s ease;
 }
@@ -315,9 +317,10 @@ html, body {
 .option-icon svg circle,
 .option-icon svg ellipse,
 .option-icon svg polyline {
-  stroke-dasharray: 200;
-  stroke-dashoffset: 200;
-  animation: pathTrace 3s ease-in-out infinite;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 30 170;
+  animation: pathTrace 2.5s linear infinite;
 }
 
 .option-card:hover .option-icon svg {
@@ -329,7 +332,7 @@ html, body {
 .option-card:hover .option-icon svg circle,
 .option-card:hover .option-icon svg ellipse,
 .option-card:hover .option-icon svg polyline {
-  animation: pathTraceFast 1.5s ease-in-out infinite;
+  animation: pathTraceFast 1.2s linear infinite;
 }
 
 .option-card.selected .option-icon svg {
@@ -342,7 +345,7 @@ html, body {
 .option-card.selected .option-icon svg circle,
 .option-card.selected .option-icon svg ellipse,
 .option-card.selected .option-icon svg polyline {
-  animation: pathTraceGlow 2s ease-in-out infinite;
+  animation: pathTraceGlow 2s linear infinite;
 }
 
 /* Icon Path Tracing Animations */
@@ -350,11 +353,8 @@ html, body {
   0% {
     stroke-dashoffset: 200;
   }
-  50% {
-    stroke-dashoffset: 0;
-  }
   100% {
-    stroke-dashoffset: -200;
+    stroke-dashoffset: 0;
   }
 }
 
@@ -362,11 +362,8 @@ html, body {
   0% {
     stroke-dashoffset: 200;
   }
-  50% {
-    stroke-dashoffset: 0;
-  }
   100% {
-    stroke-dashoffset: -200;
+    stroke-dashoffset: 0;
   }
 }
 
@@ -374,11 +371,8 @@ html, body {
   0% {
     stroke-dashoffset: 200;
   }
-  50% {
-    stroke-dashoffset: 0;
-  }
   100% {
-    stroke-dashoffset: -200;
+    stroke-dashoffset: 0;
   }
 }
 
@@ -394,40 +388,46 @@ html, body {
 .option-card:nth-child(3) .option-icon svg circle { animation-delay: 0.6s; }
 
 /* Method icon path tracing */
+.method-icon svg {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .method-icon svg path,
 .method-icon svg rect,
 .method-icon svg circle {
-  stroke-dasharray: 200;
-  stroke-dashoffset: 200;
-  animation: pathTrace 3s ease-in-out infinite;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 30 170;
+  animation: pathTrace 2.5s linear infinite;
 }
 
 .method-card:hover .method-icon svg path,
 .method-card:hover .method-icon svg rect,
 .method-card:hover .method-icon svg circle {
-  animation: pathTraceFast 1.5s ease-in-out infinite;
+  animation: pathTraceFast 1.2s linear infinite;
 }
 
 /* Fail screen icon path tracing */
+.fail-icon svg {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .fail-icon svg path,
 .fail-icon svg circle {
-  stroke-dasharray: 150;
-  stroke-dashoffset: 150;
-  animation: pathTraceSlow 4s ease-in-out infinite;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 25 125;
+  animation: pathTraceSlow 3s linear infinite;
 }
 
 @keyframes pathTraceSlow {
   0% {
     stroke-dashoffset: 150;
-    opacity: 0.5;
-  }
-  50% {
-    stroke-dashoffset: 0;
-    opacity: 0.8;
   }
   100% {
-    stroke-dashoffset: -150;
-    opacity: 0.5;
+    stroke-dashoffset: 0;
   }
 }
 
@@ -994,10 +994,10 @@ input[type="number"] { -moz-appearance: textfield; }
 }
 
 @media (max-width: 768px) {
-  .header { width: 100%; padding: 0.75rem 0 0.25rem 0; }
-  .main-content { width: 100%; padding: 1rem 0 0 0; }
+  .header { width: 100%; padding: 0.25rem 0 0.15rem 0; }
+  .main-content { width: 100%; padding: 0.25rem 0 0 0; }
   .footer { width: 100%; }
-  .question-title { font-size: 1.75rem; margin-bottom: 1rem; }
+  .question-title { font-size: 1.75rem; margin-bottom: 0.75rem; }
   .option-card {
     padding: 1.75rem 1.5rem;
     min-height: 200px;
