@@ -148,7 +148,7 @@ html, body {
 /* Options Grid - Psychology: Gestalt proximity, visual grouping */
 .options-grid {
   display: grid;
-  gap: 1.5rem;
+  gap: 2rem;
   width: 100%;
 }
 .options-grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
@@ -319,8 +319,8 @@ html, body {
 .option-icon svg polyline {
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 30 170;
-  animation: pathTrace 2.5s linear infinite;
+  stroke-dasharray: 180 20;
+  animation: pathTrace 3s linear infinite;
 }
 
 .option-card:hover .option-icon svg {
@@ -332,7 +332,7 @@ html, body {
 .option-card:hover .option-icon svg circle,
 .option-card:hover .option-icon svg ellipse,
 .option-card:hover .option-icon svg polyline {
-  animation: pathTraceFast 1.2s linear infinite;
+  animation: pathTraceFast 1.5s linear infinite;
 }
 
 .option-card.selected .option-icon svg {
@@ -398,14 +398,14 @@ html, body {
 .method-icon svg circle {
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 30 170;
-  animation: pathTrace 2.5s linear infinite;
+  stroke-dasharray: 180 20;
+  animation: pathTrace 3s linear infinite;
 }
 
 .method-card:hover .method-icon svg path,
 .method-card:hover .method-icon svg rect,
 .method-card:hover .method-icon svg circle {
-  animation: pathTraceFast 1.2s linear infinite;
+  animation: pathTraceFast 1.5s linear infinite;
 }
 
 /* Fail screen icon path tracing */
@@ -418,8 +418,8 @@ html, body {
 .fail-icon svg circle {
   stroke-linecap: round;
   stroke-linejoin: round;
-  stroke-dasharray: 25 125;
-  animation: pathTraceSlow 3s linear infinite;
+  stroke-dasharray: 130 20;
+  animation: pathTraceSlow 4s linear infinite;
 }
 
 @keyframes pathTraceSlow {
