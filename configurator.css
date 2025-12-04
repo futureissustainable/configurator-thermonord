@@ -14,6 +14,10 @@
   --warning: #fcd34d;
   --warning-bg: rgba(252, 211, 77, 0.1);
   --muted-tag: rgba(255, 255, 255, 0.08);
+  /* Premium accent - warm champagne gold for luxury feel */
+  --premium-accent: #D4A574;
+  --premium-accent-dim: rgba(212, 165, 116, 0.15);
+  --premium-glow: rgba(212, 165, 116, 0.25);
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -110,8 +114,7 @@ html, body {
 .screen.active {
   display: flex;
   flex-direction: column;
-  width: 100%;
-  min-width: 100%;
+  align-items: center;
 }
 
 @keyframes fadeIn {
@@ -147,8 +150,8 @@ html, body {
 .option-card {
   position: relative;
   background: #181818;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-top: 3px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-top: 3px solid var(--premium-accent-dim);
   border-radius: 1.5rem;
   padding: 2rem;
   cursor: pointer;
@@ -156,17 +159,39 @@ html, body {
   overflow: hidden;
 }
 
+.option-card::before {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  border-radius: 1.5rem;
+  background: linear-gradient(135deg, var(--premium-glow) 0%, transparent 50%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+
 .option-card:hover {
-  border-color: rgba(255, 255, 255, 0.2);
-  border-top-color: rgba(255, 255, 255, 0.4);
-  transform: translateY(-2px);
-  background: #1e1e1e;
+  border-color: rgba(212, 165, 116, 0.4);
+  border-top-color: var(--premium-accent);
+  transform: translateY(-4px);
+  background: #1c1c1c;
+  box-shadow: 0 8px 32px rgba(212, 165, 116, 0.12), 0 0 0 1px rgba(212, 165, 116, 0.1);
+}
+
+.option-card:hover::before {
+  opacity: 1;
 }
 
 .option-card.selected {
-  border-color: var(--text-primary);
-  border-top-color: var(--text-primary);
-  background: #222222;
+  border-color: var(--premium-accent);
+  border-top-color: var(--premium-accent);
+  background: linear-gradient(135deg, #1f1a16 0%, #1a1a1a 100%);
+  box-shadow: 0 8px 40px rgba(212, 165, 116, 0.2), 0 0 0 1px var(--premium-accent);
+}
+
+.option-card.selected::before {
+  opacity: 0.5;
 }
 
 .option-card.selected::after {
@@ -176,8 +201,9 @@ html, body {
   right: 1.25rem;
   width: 24px;
   height: 24px;
-  background: var(--text-primary);
+  background: var(--premium-accent);
   border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(212, 165, 116, 0.4);
 }
 
 .option-card.selected .check-icon { display: block; }
@@ -195,6 +221,8 @@ html, body {
 .check-icon svg { width: 100%; height: 100%; }
 
 .option-icon {
+  position: relative;
+  z-index: 1;
   width: 56px;
   height: 56px;
   margin-bottom: 1.5rem;
@@ -207,7 +235,13 @@ html, body {
 
 .option-card:hover .option-icon {
   background: #2a2a2a;
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: rgba(212, 165, 116, 0.3);
+  box-shadow: 0 0 16px rgba(212, 165, 116, 0.15);
+}
+
+.option-card.selected .option-icon {
+  background: linear-gradient(135deg, #2d261f 0%, #252525 100%);
+  border-color: rgba(212, 165, 116, 0.4);
 }
 
 .option-icon svg {
@@ -219,13 +253,22 @@ html, body {
 }
 
 .option-title {
+  position: relative;
+  z-index: 1;
   font-size: 1.2rem;
   font-weight: 300;
   margin-bottom: 0.5rem;
   color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.option-card:hover .option-title {
+  color: #fff;
 }
 
 .option-description {
+  position: relative;
+  z-index: 1;
   font-size: 0.9rem;
   color: var(--text-secondary);
   font-weight: 200;
@@ -233,6 +276,8 @@ html, body {
 }
 
 .option-tag {
+  position: relative;
+  z-index: 1;
   display: inline-block;
   margin-top: 1rem;
   padding: 0.35rem 0.75rem;
