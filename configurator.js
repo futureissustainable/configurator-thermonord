@@ -714,7 +714,8 @@ function addAnotherProduct() {
 // ============================================
 
 function goToQualification() {
-  goToScreen('screen-q1');
+  // Go directly to form with all UTMs
+  submitToForm();
 }
 
 function selectProjectType(type) {
@@ -803,11 +804,6 @@ function selectScope(scope) {
 function submitToForm() {
   const params = new URLSearchParams();
 
-  // Qualification data
-  if (state.projectType) params.set('status', state.projectType);
-  if (state.timeline) params.set('timeline', state.timeline);
-  if (state.scope) params.set('scope', state.scope);
-
   // Products data
   const productsString = state.cart.map((product, index) => {
     const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
@@ -827,7 +823,7 @@ function submitToForm() {
   params.set('TOTAL', total.toFixed(2));
   params.set('PRODUCT_COUNT', totalQty.toString());
 
-  window.location.href = `/form?${params.toString()}`;
+  window.location.href = `/design/form?${params.toString()}`;
 }
 
 function submitEmail(event) {
