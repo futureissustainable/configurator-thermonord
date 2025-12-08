@@ -804,24 +804,21 @@ function selectScope(scope) {
 function submitToForm() {
   const params = new URLSearchParams();
 
-  // Products data
-  const productsString = state.cart.map((product, index) => {
+  // Products data - format: "2x Oscilobatantă - Cu sticlă - Antracit - Dreapta - 120x180cm - €1,854.00"
+  const productsString = state.cart.map((product) => {
     const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
     const openingText = product.opening ? ` - ${product.opening}` : '';
     const colorText = product.color === 'Altă culoare' && product.customColor
       ? product.customColor
       : product.color;
-    const qtyText = product.quantity > 1 ? ` x${product.quantity}` : '';
 
-    return `${index + 1}. ${product.frameName}${qtyText} - ${glassText} - ${colorText}${openingText} - L:${product.width}cm x H:${product.height}cm - ${product.calculatedPrice.toFixed(2)} EUR`;
-  }).join('\n');
+    return `${product.quantity}x ${product.frameName} - ${glassText} - ${colorText}${openingText} - ${product.width}x${product.height}cm - €${product.calculatedPrice.toFixed(2)}`;
+  }).join(' | ');
 
   const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
-  const totalQty = state.cart.reduce((sum, p) => sum + p.quantity, 0);
 
   params.set('PRODUCTS', productsString);
   params.set('TOTAL', total.toFixed(2));
-  params.set('PRODUCT_COUNT', totalQty.toString());
 
   window.location.href = `/design/form?${params.toString()}`;
 }
