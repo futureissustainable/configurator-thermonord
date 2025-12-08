@@ -61,6 +61,12 @@
             <!-- Dimensions -->
             <div class="control-section">
               <label class="control-label">Dimensiuni</label>
+              <div class="dimension-presets">
+                <button class="preset-btn" onclick="setPresetDimensions(120, 140)">120 × 140</button>
+                <button class="preset-btn" onclick="setPresetDimensions(150, 150)">150 × 150</button>
+                <button class="preset-btn" onclick="setPresetDimensions(180, 200)">180 × 200</button>
+              </div>
+              <div class="dimension-manual-label">sau introdu manual:</div>
               <div class="dimension-inputs">
                 <div class="input-wrapper">
                   <input type="number" id="inputWidth" placeholder="Lățime" oninput="updateConfig()">
