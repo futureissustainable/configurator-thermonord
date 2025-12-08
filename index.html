@@ -5,19 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>THERMONORD | Configurator</title>
   <link href="https://fonts.googleapis.com/css2?family=Geist:wght@200;300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://futureissustainable.github.io/configurator-thermonord/configurator.css">
+  <link rel="stylesheet" href="configurator.css">
 </head>
 <body>
   <div class="bg-pattern"></div>
   <div class="bg-gradient"></div>
 
   <div class="configurator">
-    <header class="header">
+    <header class="header" id="mainHeader">
       <div class="progress-steps">
-        <span class="progress-step active" data-step="1">Status</span>
-        <span class="progress-step" data-step="2">Timeline</span>
-        <span class="progress-step" data-step="3">Buget</span>
-        <span class="progress-step" data-step="4">Cantitate</span>
+        <span class="progress-step active" data-step="1">Sticlă</span>
+        <span class="progress-step" data-step="2">Ramă</span>
+        <span class="progress-step" data-step="3">Configurare</span>
       </div>
       <div class="progress-track">
         <div class="progress-fill" id="progressFill"></div>
@@ -26,13 +25,175 @@
 
     <div class="main-content">
 
-      <!-- Screen 1: Status -->
-      <div class="screen active" id="screen1">
+      <!-- Screen 1: Glass Choice -->
+      <div class="screen active" id="screen-glass">
+        <span class="question-number">Pasul 01</span>
+        <h1 class="question-title">Alege tipul de ramă</h1>
+
+        <div class="options-grid cols-2 glass-options">
+          <div class="option-card glass-card" onclick="selectGlass(true)" data-value="with-glass">
+            <div class="check-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="option-icon large">
+              <svg viewBox="0 0 48 48">
+                <rect x="8" y="6" width="32" height="36" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="12" y="10" width="24" height="28" fill="rgba(255,255,255,0.1)" stroke="currentColor" stroke-width="1"/>
+                <path d="M12 24h24M24 10v28" stroke="currentColor" stroke-width="1" opacity="0.5"/>
+              </svg>
+            </div>
+            <div class="option-title">Rame cu sticlă</div>
+            <div class="option-description">Tripan securizat inclus</div>
+            <span class="option-tag green">Recomandat</span>
+          </div>
+
+          <div class="option-card glass-card" onclick="selectGlass(false)" data-value="no-glass">
+            <div class="check-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div class="option-icon large">
+              <svg viewBox="0 0 48 48">
+                <rect x="8" y="6" width="32" height="36" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+                <rect x="12" y="10" width="24" height="28" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 2"/>
+              </svg>
+            </div>
+            <div class="option-title">Rame fără sticlă</div>
+            <div class="option-description">Doar structura</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Screen 2: Frame Type -->
+      <div class="screen" id="screen-frame">
+        <span class="question-number">Pasul 02</span>
+        <h1 class="question-title">Alege tipul de ramă</h1>
+
+        <div class="frame-grid" id="frameGrid">
+          <!-- Frame cards will be rendered by JS -->
+        </div>
+      </div>
+
+      <!-- Screen 3: Configurator -->
+      <div class="screen" id="screen-configurator">
+        <div class="config-header-bar">
+          <div class="config-selection-info">
+            <span id="configHeaderText">Oscilobatantă · Cu sticlă</span>
+          </div>
+          <button class="change-link" onclick="goToScreen('screen-glass')">Schimbă</button>
+        </div>
+
+        <div class="configurator-layout">
+          <div class="config-preview">
+            <canvas id="previewCanvas"></canvas>
+          </div>
+
+          <div class="config-controls">
+            <!-- Dimensions -->
+            <div class="control-section">
+              <label class="control-label">Dimensiuni</label>
+              <div class="dimension-inputs">
+                <div class="input-wrapper">
+                  <input type="number" id="inputWidth" placeholder="Lățime" oninput="updateConfig()">
+                  <span class="input-suffix">cm</span>
+                </div>
+                <span class="dimension-x">×</span>
+                <div class="input-wrapper">
+                  <input type="number" id="inputHeight" placeholder="Înălțime" oninput="updateConfig()">
+                  <span class="input-suffix">cm</span>
+                </div>
+              </div>
+              <div class="dimension-presets">
+                <button class="preset-btn" onclick="setPresetDimensions(60, 60)">60×60</button>
+                <button class="preset-btn" onclick="setPresetDimensions(80, 120)">80×120</button>
+                <button class="preset-btn" onclick="setPresetDimensions(100, 150)">100×150</button>
+                <button class="preset-btn" onclick="setPresetDimensions(120, 180)">120×180</button>
+              </div>
+            </div>
+
+            <!-- Color -->
+            <div class="control-section">
+              <label class="control-label">Culoare</label>
+              <select id="selectColor" onchange="updateConfig()">
+                <option value="Antracit">Antracit</option>
+                <option value="Altă culoare">Altă culoare</option>
+              </select>
+              <input type="text" id="inputCustomColor" class="hidden" placeholder="ex: RAL 7016" oninput="updateConfig()">
+            </div>
+
+            <!-- Opening Direction (conditional) -->
+            <div class="control-section" id="openingSection" style="display: none;">
+              <label class="control-label">Direcție deschidere</label>
+              <div class="toggle-buttons">
+                <button class="toggle-btn" data-value="Stânga" onclick="setOpening('Stânga')">Stânga</button>
+                <button class="toggle-btn active" data-value="Dreapta" onclick="setOpening('Dreapta')">Dreapta</button>
+              </div>
+            </div>
+
+            <!-- Quantity -->
+            <div class="control-section">
+              <label class="control-label">Cantitate</label>
+              <div class="quantity-controls">
+                <button class="quantity-btn" onclick="adjustQuantity(-1)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
+                </button>
+                <span class="quantity-value" id="quantityValue">1</span>
+                <button class="quantity-btn" onclick="adjustQuantity(1)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <!-- Price Display -->
+            <div class="price-display hidden" id="priceDisplay">
+              <span class="price-value" id="priceValue">€0</span>
+              <span class="price-note">+ TVA</span>
+            </div>
+
+            <!-- Add to Cart CTA -->
+            <button class="cta-btn add-product-btn" id="addProductBtn" onclick="addToCart()" disabled>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              ADAUGĂ PRODUS
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cart View -->
+      <div class="screen" id="screen-cart">
+        <span class="question-number">Coș</span>
+        <h1 class="question-title">Produsele tale</h1>
+
+        <div class="cart-container">
+          <div class="cart-items" id="cartItems">
+            <!-- Cart items rendered by JS -->
+          </div>
+
+          <div class="cart-summary">
+            <div class="cart-total">
+              Total: <span id="cartTotal">€0</span><span class="price-note">+ TVA</span>
+            </div>
+          </div>
+
+          <div class="cart-actions">
+            <button class="secondary-btn" onclick="addAnotherProduct()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+              Adaugă alt produs
+            </button>
+            <button class="cta-btn" onclick="goToQualification()">
+              Continuă spre ofertă
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Qualification Q1: Project Type -->
+      <div class="screen" id="screen-q1">
         <span class="question-number">Întrebarea 01</span>
-        <h1 class="question-title">Ai o casă în construcție sau în renovare?</h1>
+        <h1 class="question-title">Ce tip de proiect ai?</h1>
 
         <div class="options-grid cols-3">
-          <div class="option-card" onclick="selectOption(this, 'status', 'constructie')" data-value="constructie">
+          <div class="option-card" onclick="selectProjectType('constructie')" data-value="constructie">
             <div class="check-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -44,12 +205,12 @@
                 <path d="M32 14v-4h4v8"/>
               </svg>
             </div>
-            <div class="option-title">Construcție Nouă</div>
+            <div class="option-title">Construcție nouă</div>
             <div class="option-description">Casă în curs de ridicare</div>
             <span class="option-tag green">Recomandat</span>
           </div>
 
-          <div class="option-card" onclick="selectOption(this, 'status', 'renovare')" data-value="renovare">
+          <div class="option-card" onclick="selectProjectType('renovare')" data-value="renovare">
             <div class="check-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -67,41 +228,40 @@
             <span class="option-tag green">Recomandat</span>
           </div>
 
-          <div class="option-card" onclick="showFailScreen('no-project')" data-value="none">
+          <div class="option-card" onclick="showEmailCapture()" data-value="exploring">
             <div class="option-icon">
               <svg viewBox="0 0 48 48">
                 <path d="M24 12C14 12 6 24 6 24s8 12 18 12 18-12 18-12-8-12-18-12z"/>
                 <circle cx="24" cy="24" r="6"/>
               </svg>
             </div>
-            <div class="option-title">Nu am un proiect</div>
-            <div class="option-description">Doar explorez</div>
+            <div class="option-title">Doar explorez</div>
+            <div class="option-description">Încă nu am un proiect</div>
           </div>
         </div>
       </div>
 
-      <!-- Screen 2: Timeline -->
-      <div class="screen" id="screen2">
+      <!-- Qualification Q2: Timeline -->
+      <div class="screen" id="screen-q2">
         <span class="question-number">Întrebarea 02</span>
         <h1 class="question-title">Când ai nevoie de montaj?</h1>
 
         <div class="options-grid cols-3">
-          <div class="option-card" onclick="selectOption(this, 'timeline', 'later')" data-value="later">
+          <div class="option-card" onclick="selectTimeline('urgent')" data-value="urgent">
             <div class="check-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <div class="option-icon">
               <svg viewBox="0 0 48 48">
-                <path d="M14 8h20M14 40h20"/>
-                <path d="M16 8v8c0 4 8 8 8 8s8-4 8-8V8"/>
-                <path d="M16 40v-8c0-4 8-8 8-8s8 4 8 8v8"/>
+                <path d="M26 4L10 28h12l-2 16 16-24H24l2-16z" fill="none"/>
               </svg>
             </div>
-            <div class="option-title">Nu acum</div>
-            <div class="option-description">Peste 3+ luni</div>
+            <div class="option-title">În 30 de zile</div>
+            <div class="option-description">Urgență maximă</div>
+            <span class="option-tag green">Prioritate</span>
           </div>
 
-          <div class="option-card" onclick="selectOption(this, 'timeline', 'curand')" data-value="curand">
+          <div class="option-card" onclick="selectTimeline('curand')" data-value="curand">
             <div class="check-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -112,87 +272,35 @@
                 <circle cx="24" cy="30" r="4"/>
               </svg>
             </div>
-            <div class="option-title">Curând</div>
+            <div class="option-title">În 3 luni</div>
             <div class="option-description">Următoarele 3 luni</div>
             <span class="option-tag yellow">Planificare</span>
           </div>
 
-          <div class="option-card" onclick="selectOption(this, 'timeline', 'urgent')" data-value="urgent">
+          <div class="option-card" onclick="selectTimeline('later')" data-value="later">
             <div class="check-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
             <div class="option-icon">
               <svg viewBox="0 0 48 48">
-                <path d="M26 4L10 28h12l-2 16 16-24H24l2-16z" fill="none"/>
+                <path d="M14 8h20M14 40h20"/>
+                <path d="M16 8v8c0 4 8 8 8 8s8-4 8-8V8"/>
+                <path d="M16 40v-8c0-4 8-8 8-8s8 4 8 8v8"/>
               </svg>
             </div>
-            <div class="option-title">Urgent</div>
-            <div class="option-description">Următoarele 30 zile</div>
-            <span class="option-tag green">Prioritate maximă</span>
+            <div class="option-title">Peste 3 luni</div>
+            <div class="option-description">Nu e urgent</div>
           </div>
         </div>
       </div>
 
-      <!-- Screen 3: Budget -->
-      <div class="screen" id="screen3">
+      <!-- Qualification Q3: Scope -->
+      <div class="screen" id="screen-q3">
         <span class="question-number">Întrebarea 03</span>
-        <h1 class="question-title">Care este bugetul estimat pentru tâmplărie?</h1>
+        <h1 class="question-title">Câte piese conține proiectul?</h1>
 
         <div class="options-grid cols-3">
-          <div class="option-card" onclick="showFailScreen('low-budget')" data-value="low">
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <circle cx="24" cy="24" r="16"/>
-                <path d="M24 14v20M18 20h12M18 28h12"/>
-              </svg>
-            </div>
-            <div class="option-title">Sub 2.500 EUR</div>
-            <div class="option-description">Buget limitat</div>
-          </div>
-
-          <div class="option-card" onclick="selectOption(this, 'budget', 'medium')" data-value="medium">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <ellipse cx="24" cy="32" rx="14" ry="6"/>
-                <path d="M10 32v-6c0-3.3 6.3-6 14-6s14 2.7 14 6v6"/>
-                <ellipse cx="24" cy="26" rx="14" ry="6"/>
-                <path d="M10 26v-6c0-3.3 6.3-6 14-6s14 2.7 14 6v6"/>
-                <ellipse cx="24" cy="20" rx="14" ry="6"/>
-              </svg>
-            </div>
-            <div class="option-title">2.500 - 5.000 EUR</div>
-            <div class="option-description">Proiect standard</div>
-            <span class="option-tag yellow">Proiect mic</span>
-          </div>
-
-          <div class="option-card" onclick="selectOption(this, 'budget', 'high')" data-value="high">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon">
-              <svg viewBox="0 0 48 48">
-                <rect x="8" y="28" width="8" height="14"/>
-                <rect x="20" y="18" width="8" height="24"/>
-                <rect x="32" y="8" width="8" height="34"/>
-              </svg>
-            </div>
-            <div class="option-title">Peste 5.000 EUR</div>
-            <div class="option-description">Proiect mare</div>
-            <span class="option-tag green">Proiect mare</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Screen 4: Scope -->
-      <div class="screen" id="screen4">
-        <span class="question-number">Întrebarea 04</span>
-        <h1 class="question-title">Aproximativ câte ferestre/uși conține proiectul?</h1>
-
-        <div class="options-grid cols-3">
-          <div class="option-card" onclick="selectOption(this, 'scope', 'small')" data-value="small">
+          <div class="option-card" id="scope-small" onclick="selectScope('small')" data-value="small">
             <div class="check-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -202,11 +310,11 @@
                 <path d="M12 24h24M24 8v32"/>
               </svg>
             </div>
-            <div class="option-title">1-5 bucăți</div>
+            <div class="option-title">1-5 piese</div>
             <div class="option-description">Proiect mic</div>
           </div>
 
-          <div class="option-card" onclick="selectOption(this, 'scope', 'medium')" data-value="medium">
+          <div class="option-card" id="scope-medium" onclick="selectScope('medium')" data-value="medium">
             <div class="check-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -218,12 +326,12 @@
                 <path d="M26 20h16M34 10v20"/>
               </svg>
             </div>
-            <div class="option-title">5-10 bucăți</div>
+            <div class="option-title">5-15 piese</div>
             <div class="option-description">Casă standard</div>
             <span class="option-tag yellow">Standard</span>
           </div>
 
-          <div class="option-card" onclick="selectOption(this, 'scope', 'large')" data-value="large">
+          <div class="option-card" id="scope-large" onclick="selectScope('large')" data-value="large">
             <div class="check-icon">
               <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             </div>
@@ -237,74 +345,50 @@
                 <rect x="20" y="34" width="8" height="8"/>
               </svg>
             </div>
-            <div class="option-title">15+ bucăți</div>
+            <div class="option-title">15+ piese</div>
             <div class="option-description">Casă mare</div>
             <span class="option-tag green">Complet</span>
           </div>
         </div>
       </div>
 
-      <!-- Fail Screen: No Project -->
-      <div class="screen" id="fail-no-project">
-        <div class="fail-screen">
-          <div class="fail-icon">
+      <!-- Email Capture Screen -->
+      <div class="screen" id="screen-email">
+        <div class="email-capture">
+          <div class="email-icon">
             <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="24" cy="24" r="20"/>
-              <path d="M24 14v12"/>
-              <circle cx="24" cy="32" r="2" fill="currentColor"/>
+              <rect x="6" y="10" width="36" height="28" rx="3"/>
+              <path d="M6 14l18 12 18-12"/>
             </svg>
           </div>
-          <h2 class="fail-title">Încă nu ai un proiect?</h2>
-          <p class="fail-text">Revino când începi construcția sau renovarea. Suntem aici să te ajutăm cu ferestre Passivhaus de cea mai înaltă calitate.</p>
-          <a href="/" class="fail-cta">
+          <h2 class="email-title">Rămâi conectat</h2>
+          <p class="email-text">Lasă-ne emailul și te anunțăm când ești gata să începi proiectul.</p>
+          <form class="email-form" onsubmit="submitEmail(event)">
+            <input type="email" id="emailInput" placeholder="adresa@email.com" required>
+            <button type="submit" class="cta-btn">
+              Trimite
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </button>
+          </form>
+          <a href="/" class="back-home-link">Înapoi la pagina principală</a>
+        </div>
+      </div>
+
+      <!-- Success Screen -->
+      <div class="screen" id="screen-success">
+        <div class="success-screen">
+          <div class="success-icon">
+            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="24" cy="24" r="20"/>
+              <polyline points="14 24 22 32 34 18"/>
+            </svg>
+          </div>
+          <h2 class="success-title">Mulțumim!</h2>
+          <p class="success-text">Oferta ta a fost trimisă. Te vom contacta în curând.</p>
+          <a href="/" class="cta-btn">
             Înapoi la pagina principală
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
           </a>
-        </div>
-      </div>
-
-      <!-- Fail Screen: Low Budget -->
-      <div class="screen" id="fail-low-budget">
-        <div class="fail-screen">
-          <div class="fail-icon">
-            <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="24" cy="24" r="20"/>
-              <path d="M24 14v20M18 20h12"/>
-            </svg>
-          </div>
-          <h2 class="fail-title">Bugetul minim este 2.500 EUR</h2>
-          <p class="fail-text">Ferestrele THERMONORD sunt certificate Passivhaus și reprezintă o investiție în eficiența energetică pe termen lung.</p>
-          <a href="/" class="fail-cta">
-            Află mai multe
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-          </a>
-        </div>
-      </div>
-
-      <!-- Configurator Screen -->
-      <div class="screen" id="configurator-screen">
-        <div class="configurator-section">
-          <div class="configurator-grid">
-            <div class="visuals-column" id="visuals-container"></div>
-            <div class="config-column">
-              <div id="products-container"></div>
-
-              <button class="add-btn" onclick="WindowConfigurator.addProduct()">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-                Adaugă produs
-              </button>
-
-              <div class="summary-card">
-                <div class="summary-items" id="summary-items"></div>
-                <div class="summary-total">
-                  TOTAL: <span id="total">0.00</span> EUR<span class="summary-tva">+ TVA</span>
-                </div>
-                <button class="cta-btn" onclick="goToForm()">
-                  SECURIZEAZA OFERTA
-                </button>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -320,6 +404,6 @@
     Înapoi
   </button>
 
-  <script src="https://futureissustainable.github.io/configurator-thermonord/configurator.js"></script>
+  <script src="configurator.js"></script>
 </body>
 </html>

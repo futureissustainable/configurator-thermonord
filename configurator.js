@@ -1,41 +1,93 @@
+// ============================================
+// THERMONORD Configurator - New Flow
+// ============================================
+
+// Frame types with pricing (with glass / without glass)
+const frameTypes = [
+  {
+    id: 'fixed',
+    name: 'Ramă Fixă',
+    priceWithGlass: 245,
+    priceNoGlass: 145,
+    benefit: 'Fără deschidere',
+    hasOpening: false,
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a01229532b19ecc8c7e3_GEAM%20FIX.avif',
+    badge: null
+  },
+  {
+    id: 'classic',
+    name: 'Fereastră Clasică',
+    priceWithGlass: 485,
+    priceNoGlass: 285,
+    benefit: 'Deschidere laterală',
+    hasOpening: true,
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a013c2a9c19c34419641_GEAM%20CLASIC.avif',
+    badge: null
+  },
+  {
+    id: 'tilt_turn',
+    name: 'Oscilobatantă',
+    priceWithGlass: 515,
+    priceNoGlass: 315,
+    benefit: 'Deschidere + ventilație',
+    hasOpening: true,
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a013b86458b58644ee1c_GEAM%20OSCILO.avif',
+    badge: { text: '⭐ POPULAR', type: 'popular' }
+  },
+  {
+    id: 'door_simple',
+    name: 'Ușă Intrare',
+    priceWithGlass: 580,
+    priceNoGlass: 380,
+    benefit: 'Clasică, sigură',
+    hasOpening: true,
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a0137aaa35d972df7ada_USA%20CLASICA.avif',
+    badge: null
+  },
+  {
+    id: 'slide',
+    name: 'Ușă Glisantă',
+    priceWithGlass: 695,
+    priceNoGlass: 495,
+    benefit: 'Deschidere panoramică',
+    hasOpening: true,
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a01110b71c03a7f7cfef_GEAM%20SLIDE.avif',
+    badge: { text: 'PREMIUM', type: 'premium' }
+  }
+];
+
 // State management
 const state = {
-  currentScreen: 1,
-  totalScreens: 4,
-  selections: {
-    status: null,
-    timeline: null,
-    budget: null,
-    scope: null
+  currentScreen: 'screen-glass',
+  history: [],
+
+  // Product configuration
+  hasGlass: null,
+  frameType: null,
+
+  // Current product being configured
+  currentProduct: {
+    width: null,
+    height: null,
+    color: 'Antracit',
+    customColor: '',
+    opening: 'Dreapta',
+    quantity: 1
   },
-  history: []
+
+  // Cart
+  cart: [],
+  editingProductIndex: null,
+
+  // Qualification
+  projectType: null,
+  timeline: null,
+  scope: null
 };
 
-// Progress and navigation functions
-function updateProgress() {
-  const progressFill = document.getElementById('progressFill');
-  const progress = ((state.currentScreen - 1) / state.totalScreens) * 100;
-  progressFill.style.width = `${progress}%`;
-
-  document.querySelectorAll('.progress-step').forEach((step, index) => {
-    const stepNum = index + 1;
-    step.classList.remove('active', 'completed');
-    if (stepNum === state.currentScreen) {
-      step.classList.add('active');
-    } else if (stepNum < state.currentScreen) {
-      step.classList.add('completed');
-    }
-  });
-}
-
-function updateBackButton() {
-  const backBtn = document.getElementById('backBtn');
-  if (state.history.length > 0) {
-    backBtn.classList.remove('hidden');
-  } else {
-    backBtn.classList.add('hidden');
-  }
-}
+// ============================================
+// Screen Navigation
+// ============================================
 
 function showScreen(screenId) {
   document.querySelectorAll('.screen').forEach(screen => {
@@ -46,596 +98,771 @@ function showScreen(screenId) {
   if (targetScreen) {
     targetScreen.classList.add('active');
   }
-}
 
-function selectOption(element, category, value) {
-  element.parentElement.querySelectorAll('.option-card').forEach(card => {
-    card.classList.remove('selected');
-  });
-
-  element.classList.add('selected');
-  state.selections[category] = value;
-  state.history.push(state.currentScreen);
-
-  setTimeout(() => {
-    state.currentScreen++;
-    updateProgress();
-
-    // After last question (screen 4), go to configurator
-    if (state.currentScreen > state.totalScreens) {
-      showConfigurator();
-    } else {
-      showScreen(`screen${state.currentScreen}`);
-    }
-    updateBackButton();
-  }, 300);
-}
-
-function showFailScreen(type) {
-  state.history.push(state.currentScreen);
-  showScreen(`fail-${type}`);
+  state.currentScreen = screenId;
+  updateProgress();
   updateBackButton();
+  updateHeader();
+}
+
+function goToScreen(screenId) {
+  state.history.push(state.currentScreen);
+  showScreen(screenId);
 }
 
 function goBack() {
   if (state.history.length > 0) {
     const prevScreen = state.history.pop();
-    state.currentScreen = prevScreen;
-    updateProgress();
-    showHeader();
-    showScreen(`screen${prevScreen}`);
-    updateBackButton();
+    showScreen(prevScreen);
   }
 }
 
-function goToForm() {
-  const params = new URLSearchParams();
-  Object.entries(state.selections).forEach(([key, value]) => {
-    if (value) params.set(key, value);
+function updateBackButton() {
+  const backBtn = document.getElementById('backBtn');
+  const hideOnScreens = ['screen-glass', 'screen-success', 'screen-email'];
+
+  if (state.history.length > 0 && !hideOnScreens.includes(state.currentScreen)) {
+    backBtn.classList.remove('hidden');
+  } else {
+    backBtn.classList.add('hidden');
+  }
+}
+
+function updateHeader() {
+  const header = document.getElementById('mainHeader');
+  const hideOnScreens = ['screen-configurator', 'screen-cart', 'screen-email', 'screen-success'];
+
+  if (hideOnScreens.includes(state.currentScreen)) {
+    header.style.display = 'none';
+  } else {
+    header.style.display = 'flex';
+  }
+}
+
+function updateProgress() {
+  const progressFill = document.getElementById('progressFill');
+  const screenOrder = ['screen-glass', 'screen-frame', 'screen-configurator'];
+  const currentIndex = screenOrder.indexOf(state.currentScreen);
+
+  let progress = 0;
+  if (currentIndex >= 0) {
+    progress = ((currentIndex) / (screenOrder.length - 1)) * 100;
+  }
+
+  progressFill.style.width = `${progress}%`;
+
+  document.querySelectorAll('.progress-step').forEach((step, index) => {
+    step.classList.remove('active', 'completed');
+    if (index === currentIndex) {
+      step.classList.add('active');
+    } else if (index < currentIndex) {
+      step.classList.add('completed');
+    }
+  });
+}
+
+// ============================================
+// Screen 1: Glass Selection
+// ============================================
+
+function selectGlass(hasGlass) {
+  state.hasGlass = hasGlass;
+
+  // Visual feedback
+  document.querySelectorAll('.glass-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  const selectedCard = document.querySelector(`.glass-card[data-value="${hasGlass ? 'with-glass' : 'no-glass'}"]`);
+  if (selectedCard) {
+    selectedCard.classList.add('selected');
+  }
+
+  // Advance after brief delay
+  setTimeout(() => {
+    goToScreen('screen-frame');
+    renderFrameGrid();
+  }, 300);
+}
+
+// ============================================
+// Screen 2: Frame Type Selection
+// ============================================
+
+function renderFrameGrid() {
+  const grid = document.getElementById('frameGrid');
+  if (!grid) return;
+
+  grid.innerHTML = frameTypes.map(frame => {
+    const price = state.hasGlass ? frame.priceWithGlass : frame.priceNoGlass;
+    const badgeHtml = frame.badge
+      ? `<span class="frame-badge ${frame.badge.type}">${frame.badge.text}</span>`
+      : '';
+
+    return `
+      <div class="frame-card" onclick="selectFrameType('${frame.id}')" data-frame="${frame.id}">
+        <div class="frame-image">
+          <img src="${frame.image}" alt="${frame.name}" loading="lazy">
+          ${badgeHtml}
+        </div>
+        <div class="frame-info">
+          <div class="frame-name">${frame.name}</div>
+          <div class="frame-price">€${price}/m²</div>
+          <div class="frame-benefit">${frame.benefit}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function selectFrameType(frameId) {
+  const frame = frameTypes.find(f => f.id === frameId);
+  if (!frame) return;
+
+  state.frameType = frame;
+
+  // Visual feedback
+  document.querySelectorAll('.frame-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  const selectedCard = document.querySelector(`.frame-card[data-frame="${frameId}"]`);
+  if (selectedCard) {
+    selectedCard.classList.add('selected');
+  }
+
+  // Advance after brief delay
+  setTimeout(() => {
+    goToScreen('screen-configurator');
+    initConfigurator();
+  }, 300);
+}
+
+// ============================================
+// Screen 3: Configurator
+// ============================================
+
+function initConfigurator() {
+  // Update header bar
+  const headerText = document.getElementById('configHeaderText');
+  const glassText = state.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
+  headerText.textContent = `${state.frameType.name} · ${glassText}`;
+
+  // Show/hide opening direction based on frame type
+  const openingSection = document.getElementById('openingSection');
+  if (state.frameType.hasOpening) {
+    openingSection.style.display = 'block';
+  } else {
+    openingSection.style.display = 'none';
+  }
+
+  // Reset current product if not editing
+  if (state.editingProductIndex === null) {
+    state.currentProduct = {
+      width: null,
+      height: null,
+      color: 'Antracit',
+      customColor: '',
+      opening: 'Dreapta',
+      quantity: 1
+    };
+
+    // Clear inputs
+    document.getElementById('inputWidth').value = '';
+    document.getElementById('inputHeight').value = '';
+    document.getElementById('selectColor').value = 'Antracit';
+    document.getElementById('inputCustomColor').value = '';
+    document.getElementById('inputCustomColor').classList.add('hidden');
+    document.getElementById('quantityValue').textContent = '1';
+
+    // Reset opening buttons
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.value === 'Dreapta') {
+        btn.classList.add('active');
+      }
+    });
+  } else {
+    // Populate with existing product data for editing
+    const product = state.cart[state.editingProductIndex];
+    state.currentProduct = { ...product };
+
+    document.getElementById('inputWidth').value = product.width || '';
+    document.getElementById('inputHeight').value = product.height || '';
+    document.getElementById('selectColor').value = product.color;
+    document.getElementById('inputCustomColor').value = product.customColor || '';
+    document.getElementById('quantityValue').textContent = product.quantity;
+
+    if (product.color === 'Altă culoare') {
+      document.getElementById('inputCustomColor').classList.remove('hidden');
+    }
+
+    document.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.classList.remove('active');
+      if (btn.dataset.value === product.opening) {
+        btn.classList.add('active');
+      }
+    });
+  }
+
+  updateConfig();
+  renderPreview();
+}
+
+function setPresetDimensions(width, height) {
+  document.getElementById('inputWidth').value = width;
+  document.getElementById('inputHeight').value = height;
+  state.currentProduct.width = width;
+  state.currentProduct.height = height;
+
+  // Highlight active preset
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.textContent === `${width}×${height}`) {
+      btn.classList.add('active');
+    }
   });
 
-  if (typeof WindowConfigurator !== 'undefined') {
-    const configData = WindowConfigurator.getFormData();
-    if (configData.products) params.set('PRODUCTS', configData.products);
-    if (configData.total) params.set('TOTAL', configData.total);
-    if (configData.count) params.set('PRODUCT_COUNT', configData.count);
+  updateConfig();
+}
+
+function setOpening(direction) {
+  state.currentProduct.opening = direction;
+
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.classList.remove('active');
+    if (btn.dataset.value === direction) {
+      btn.classList.add('active');
+    }
+  });
+
+  renderPreview();
+}
+
+function adjustQuantity(delta) {
+  const newQty = Math.max(1, state.currentProduct.quantity + delta);
+  state.currentProduct.quantity = newQty;
+  document.getElementById('quantityValue').textContent = newQty;
+  updateConfig();
+}
+
+function updateConfig() {
+  const width = parseFloat(document.getElementById('inputWidth').value) || 0;
+  const height = parseFloat(document.getElementById('inputHeight').value) || 0;
+  const color = document.getElementById('selectColor').value;
+  const customColor = document.getElementById('inputCustomColor').value;
+
+  state.currentProduct.width = width;
+  state.currentProduct.height = height;
+  state.currentProduct.color = color;
+  state.currentProduct.customColor = customColor;
+
+  // Show/hide custom color input
+  const customColorInput = document.getElementById('inputCustomColor');
+  if (color === 'Altă culoare') {
+    customColorInput.classList.remove('hidden');
+  } else {
+    customColorInput.classList.add('hidden');
   }
+
+  // Calculate and display price
+  const priceDisplay = document.getElementById('priceDisplay');
+  const priceValue = document.getElementById('priceValue');
+  const addBtn = document.getElementById('addProductBtn');
+
+  if (width > 0 && height > 0) {
+    const sqm = (width * height) / 10000;
+    const unitPrice = state.hasGlass ? state.frameType.priceWithGlass : state.frameType.priceNoGlass;
+    const total = sqm * unitPrice * state.currentProduct.quantity;
+
+    priceValue.textContent = formatPrice(total);
+    priceDisplay.classList.remove('hidden');
+    addBtn.disabled = false;
+  } else {
+    priceDisplay.classList.add('hidden');
+    addBtn.disabled = true;
+  }
+
+  // Clear preset highlights if dimensions don't match
+  const presets = [[60, 60], [80, 120], [100, 150], [120, 180]];
+  const matchesPreset = presets.some(([w, h]) => w === width && h === height);
+  if (!matchesPreset) {
+    document.querySelectorAll('.preset-btn').forEach(btn => btn.classList.remove('active'));
+  }
+
+  renderPreview();
+}
+
+function formatPrice(amount) {
+  return '€' + amount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+function renderPreview() {
+  const canvas = document.getElementById('previewCanvas');
+  if (!canvas) return;
+
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+
+  const rect = canvas.parentElement.getBoundingClientRect();
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+
+  ctx.scale(dpr, dpr);
+  const w = rect.width;
+  const h = rect.height;
+
+  ctx.clearRect(0, 0, w, h);
+
+  const mainColor = '#ffffff';
+  const frameFillColor = '#1a1a1a';
+  const handleColor = '#888888';
+  ctx.lineWidth = 1.2;
+  ctx.lineCap = 'square';
+  ctx.lineJoin = 'miter';
+
+  const inputW = state.currentProduct.width || 100;
+  const inputH = state.currentProduct.height || 100;
+  const padding = 40;
+
+  let drawW, drawH;
+  const availableW = w - (padding * 2);
+  const availableH = h - (padding * 2);
+  const inputRatio = inputW / inputH;
+  const canvasRatio = availableW / availableH;
+
+  if (inputRatio > canvasRatio) {
+    drawW = availableW;
+    drawH = availableW / inputRatio;
+  } else {
+    drawH = availableH;
+    drawW = availableH * inputRatio;
+  }
+
+  const startX = (w - drawW) / 2;
+  const startY = (h - drawH) / 2;
+
+  const frameThick = Math.min(drawW, drawH) * 0.06;
+  const innerX = startX + frameThick;
+  const innerY = startY + frameThick;
+  const innerW = drawW - (frameThick * 2);
+  const innerH = drawH - (frameThick * 2);
+
+  // Draw frame
+  ctx.fillStyle = frameFillColor;
+  ctx.fillRect(startX, startY, drawW, drawH);
+
+  // Draw glass (if has glass)
+  if (state.hasGlass) {
+    const glassGradient = ctx.createLinearGradient(innerX, innerY, innerX, innerY + innerH);
+    glassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.15)');
+    glassGradient.addColorStop(1, 'rgba(200, 200, 220, 0.08)');
+    ctx.fillStyle = glassGradient;
+    ctx.fillRect(innerX, innerY, innerW, innerH);
+  }
+
+  ctx.strokeStyle = mainColor;
+  ctx.strokeRect(startX, startY, drawW, drawH);
+
+  const typeId = state.frameType?.id || 'fixed';
+
+  if (typeId === 'slide') {
+    const midX = innerX + (innerW / 2);
+    ctx.strokeRect(innerX, innerY, innerW / 2, innerH);
+    ctx.strokeRect(midX, innerY, innerW / 2, innerH);
+    ctx.beginPath();
+    ctx.moveTo(startX, startY + drawH - (frameThick / 3));
+    ctx.lineTo(startX + drawW, startY + drawH - (frameThick / 3));
+    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
+    ctx.stroke();
+    ctx.strokeStyle = mainColor;
+  } else {
+    ctx.strokeRect(innerX, innerY, innerW, innerH);
+  }
+
+  // Draw opening indicators
+  if (state.frameType?.hasOpening) {
+    ctx.beginPath();
+    const isLeft = state.currentProduct.opening === 'Stânga';
+
+    if (['classic', 'door_simple', 'tilt_turn'].includes(typeId)) {
+      if (isLeft) {
+        ctx.moveTo(innerX, innerY);
+        ctx.lineTo(innerX + innerW, innerY + (innerH / 2));
+        ctx.lineTo(innerX, innerY + innerH);
+      } else {
+        ctx.moveTo(innerX + innerW, innerY);
+        ctx.lineTo(innerX, innerY + (innerH / 2));
+        ctx.lineTo(innerX + innerW, innerY + innerH);
+      }
+    }
+
+    if (typeId === 'tilt_turn') {
+      ctx.moveTo(innerX, innerY + innerH);
+      ctx.lineTo(innerX + (innerW / 2), innerY);
+      ctx.lineTo(innerX + innerW, innerY + innerH);
+    }
+    ctx.stroke();
+
+    // Sliding door arrows
+    if (typeId === 'slide') {
+      const arrowY = innerY + (innerH / 2);
+      const arrowLen = Math.min(innerW, innerH) * 0.15;
+      const arrowHeadSize = arrowLen * 0.4;
+
+      let arrowStartX, arrowEndX;
+
+      if (isLeft) {
+        const paneCenter = innerX + (innerW / 4);
+        arrowStartX = paneCenter - (arrowLen / 2);
+        arrowEndX = paneCenter + (arrowLen / 2);
+
+        ctx.beginPath();
+        ctx.moveTo(arrowStartX, arrowY);
+        ctx.lineTo(arrowEndX, arrowY);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(arrowEndX, arrowY);
+        ctx.lineTo(arrowEndX - arrowHeadSize, arrowY - (arrowHeadSize / 2));
+        ctx.lineTo(arrowEndX - arrowHeadSize, arrowY + (arrowHeadSize / 2));
+        ctx.fillStyle = mainColor;
+        ctx.fill();
+      } else {
+        const paneCenter = innerX + innerW - (innerW / 4);
+        arrowStartX = paneCenter + (arrowLen / 2);
+        arrowEndX = paneCenter - (arrowLen / 2);
+
+        ctx.beginPath();
+        ctx.moveTo(arrowStartX, arrowY);
+        ctx.lineTo(arrowEndX, arrowY);
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.moveTo(arrowEndX, arrowY);
+        ctx.lineTo(arrowEndX + arrowHeadSize, arrowY - (arrowHeadSize / 2));
+        ctx.lineTo(arrowEndX + arrowHeadSize, arrowY + (arrowHeadSize / 2));
+        ctx.fillStyle = mainColor;
+        ctx.fill();
+      }
+    }
+
+    // Draw handle
+    ctx.fillStyle = handleColor;
+
+    if (typeId === 'slide') {
+      const handleH = innerH * 0.4;
+      const handleW = Math.max(4, innerW * 0.015);
+      const handleY = innerY + (innerH / 2) - (handleH / 2);
+      let handleX;
+
+      if (isLeft) {
+        handleX = innerX + (innerW / 4) - (handleW / 2);
+      } else {
+        handleX = innerX + innerW - (innerW / 4) - (handleW / 2);
+      }
+
+      ctx.beginPath();
+      ctx.roundRect(handleX, handleY, handleW, handleH, handleW);
+      ctx.fill();
+    } else {
+      const handleH = Math.max(20, innerH * 0.15);
+      const handleW = handleH / 4;
+      const handleY = innerY + (innerH / 2) - (handleH / 2);
+      let handleX;
+
+      if (isLeft) {
+        handleX = innerX + innerW - (handleW * 1.5);
+      } else {
+        handleX = innerX + (handleW * 0.5);
+      }
+
+      ctx.beginPath();
+      ctx.roundRect(handleX, handleY, handleW, handleH, handleW / 2);
+      ctx.fill();
+    }
+  }
+
+  // Draw dimensions
+  ctx.fillStyle = 'rgba(255,255,255,0.6)';
+  ctx.font = '12px Geist, sans-serif';
+  ctx.textAlign = 'center';
+
+  // Width dimension
+  ctx.fillText(`${inputW} cm`, startX + drawW / 2, startY + drawH + 25);
+
+  // Height dimension
+  ctx.save();
+  ctx.translate(startX - 15, startY + drawH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.fillText(`${inputH} cm`, 0, 0);
+  ctx.restore();
+}
+
+// ============================================
+// Cart Management
+// ============================================
+
+function addToCart() {
+  const sqm = (state.currentProduct.width * state.currentProduct.height) / 10000;
+  const unitPrice = state.hasGlass ? state.frameType.priceWithGlass : state.frameType.priceNoGlass;
+  const calculatedPrice = sqm * unitPrice * state.currentProduct.quantity;
+
+  const product = {
+    frameType: state.frameType,
+    frameId: state.frameType.id,
+    frameName: state.frameType.name,
+    hasGlass: state.hasGlass,
+    width: state.currentProduct.width,
+    height: state.currentProduct.height,
+    color: state.currentProduct.color,
+    customColor: state.currentProduct.customColor,
+    opening: state.frameType.hasOpening ? state.currentProduct.opening : null,
+    quantity: state.currentProduct.quantity,
+    calculatedPrice: calculatedPrice
+  };
+
+  if (state.editingProductIndex !== null) {
+    // Update existing product
+    state.cart[state.editingProductIndex] = product;
+    state.editingProductIndex = null;
+  } else {
+    // Add new product
+    state.cart.push(product);
+  }
+
+  goToScreen('screen-cart');
+  renderCart();
+}
+
+function renderCart() {
+  const container = document.getElementById('cartItems');
+  const totalEl = document.getElementById('cartTotal');
+
+  if (state.cart.length === 0) {
+    container.innerHTML = '<div class="cart-empty">Coșul este gol</div>';
+    totalEl.textContent = '€0';
+    return;
+  }
+
+  container.innerHTML = state.cart.map((product, index) => {
+    const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
+    const openingText = product.opening ? ` · ${product.opening}` : '';
+    const colorText = product.color === 'Altă culoare' && product.customColor
+      ? product.customColor
+      : product.color;
+
+    return `
+      <div class="cart-item">
+        <div class="cart-item-main">
+          <div class="cart-item-title">
+            ${product.frameName} × ${product.quantity}
+          </div>
+          <div class="cart-item-details">
+            ${product.width}×${product.height} cm · ${glassText} · ${colorText}${openingText}
+          </div>
+        </div>
+        <div class="cart-item-price">${formatPrice(product.calculatedPrice)}</div>
+        <div class="cart-item-actions">
+          <button class="cart-action-btn" onclick="editProduct(${index})">Editează</button>
+          <button class="cart-action-btn" onclick="removeProduct(${index})">Șterge</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  // Calculate total
+  const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
+  totalEl.textContent = formatPrice(total);
+}
+
+function editProduct(index) {
+  const product = state.cart[index];
+
+  // Set state for editing
+  state.editingProductIndex = index;
+  state.hasGlass = product.hasGlass;
+  state.frameType = product.frameType;
+  state.currentProduct = {
+    width: product.width,
+    height: product.height,
+    color: product.color,
+    customColor: product.customColor,
+    opening: product.opening || 'Dreapta',
+    quantity: product.quantity
+  };
+
+  goToScreen('screen-configurator');
+  initConfigurator();
+}
+
+function removeProduct(index) {
+  state.cart.splice(index, 1);
+  renderCart();
+}
+
+function addAnotherProduct() {
+  // Reset for new product
+  state.editingProductIndex = null;
+  state.hasGlass = null;
+  state.frameType = null;
+  state.currentProduct = {
+    width: null,
+    height: null,
+    color: 'Antracit',
+    customColor: '',
+    opening: 'Dreapta',
+    quantity: 1
+  };
+
+  goToScreen('screen-glass');
+}
+
+// ============================================
+// Qualification Questions
+// ============================================
+
+function goToQualification() {
+  goToScreen('screen-q1');
+}
+
+function selectProjectType(type) {
+  state.projectType = type;
+
+  // Visual feedback
+  document.querySelectorAll('#screen-q1 .option-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  const selectedCard = document.querySelector(`#screen-q1 .option-card[data-value="${type}"]`);
+  if (selectedCard) {
+    selectedCard.classList.add('selected');
+  }
+
+  setTimeout(() => {
+    goToScreen('screen-q2');
+  }, 300);
+}
+
+function showEmailCapture() {
+  goToScreen('screen-email');
+}
+
+function selectTimeline(timeline) {
+  state.timeline = timeline;
+
+  // Visual feedback
+  document.querySelectorAll('#screen-q2 .option-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  const selectedCard = document.querySelector(`#screen-q2 .option-card[data-value="${timeline}"]`);
+  if (selectedCard) {
+    selectedCard.classList.add('selected');
+  }
+
+  setTimeout(() => {
+    goToScreen('screen-q3');
+    autoHighlightScope();
+  }, 300);
+}
+
+function autoHighlightScope() {
+  // Calculate total quantity in cart
+  const totalQty = state.cart.reduce((sum, p) => sum + p.quantity, 0);
+
+  // Remove all highlights first
+  document.querySelectorAll('#screen-q3 .option-card').forEach(card => {
+    card.classList.remove('suggested');
+  });
+
+  // Add suggested class based on quantity
+  let suggestedId = 'scope-small';
+  if (totalQty > 15) {
+    suggestedId = 'scope-large';
+  } else if (totalQty > 5) {
+    suggestedId = 'scope-medium';
+  }
+
+  const suggestedCard = document.getElementById(suggestedId);
+  if (suggestedCard) {
+    suggestedCard.classList.add('suggested');
+  }
+}
+
+function selectScope(scope) {
+  state.scope = scope;
+
+  // Visual feedback
+  document.querySelectorAll('#screen-q3 .option-card').forEach(card => {
+    card.classList.remove('selected');
+  });
+  const selectedCard = document.querySelector(`#screen-q3 .option-card[data-value="${scope}"]`);
+  if (selectedCard) {
+    selectedCard.classList.add('selected');
+  }
+
+  setTimeout(() => {
+    submitToForm();
+  }, 300);
+}
+
+// ============================================
+// Form Submission
+// ============================================
+
+function submitToForm() {
+  const params = new URLSearchParams();
+
+  // Qualification data
+  if (state.projectType) params.set('status', state.projectType);
+  if (state.timeline) params.set('timeline', state.timeline);
+  if (state.scope) params.set('scope', state.scope);
+
+  // Products data
+  const productsString = state.cart.map((product, index) => {
+    const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
+    const openingText = product.opening ? ` - ${product.opening}` : '';
+    const colorText = product.color === 'Altă culoare' && product.customColor
+      ? product.customColor
+      : product.color;
+    const qtyText = product.quantity > 1 ? ` x${product.quantity}` : '';
+
+    return `${index + 1}. ${product.frameName}${qtyText} - ${glassText} - ${colorText}${openingText} - L:${product.width}cm x H:${product.height}cm - ${product.calculatedPrice.toFixed(2)} EUR`;
+  }).join('\n');
+
+  const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
+  const totalQty = state.cart.reduce((sum, p) => sum + p.quantity, 0);
+
+  params.set('PRODUCTS', productsString);
+  params.set('TOTAL', total.toFixed(2));
+  params.set('PRODUCT_COUNT', totalQty.toString());
 
   window.location.href = `/form?${params.toString()}`;
 }
 
-function showConfigurator() {
-  // Hide header when showing configurator
-  document.querySelector('.header').style.display = 'none';
-  showScreen('configurator-screen');
-  updateBackButton();
-  WindowConfigurator.init();
+function submitEmail(event) {
+  event.preventDefault();
+  const email = document.getElementById('emailInput').value;
+
+  // Here you would normally send the email to your backend
+  console.log('Email captured:', email);
+
+  // Show success or redirect
+  goToScreen('screen-success');
 }
 
-function showHeader() {
-  document.querySelector('.header').style.display = 'flex';
-}
+// ============================================
+// Initialization
+// ============================================
 
-// Window Configurator Module
-const WindowConfigurator = (function() {
-  const productTypes = [
-    { name: "Ramă Fixă", price: 245, image: "https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691302224093ef3c30939e72_Thermonord%20Tripan%20FIX.avif", hasOpening: false, typeId: 'fixed' },
-    { name: "Ramă Fereastră (Deschidere Clasică)", price: 485, image: "https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691302227d7c4d41b1078486_Thermonord%20Tripan%20GEAM%20CLASIC.avif", hasOpening: true, typeId: 'classic' },
-    { name: "Ramă Fereastră (Oscilobatantă)", price: 515, image: "https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/69130220a3a0f59d430752dc_Thermonord%20Tripan%20OSCILOBATANT.avif", hasOpening: true, typeId: 'tilt_turn' },
-    { name: "Ramă Ușă Intrare", price: 580, image: "https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691302227033c8b97f33857b_Thermonord%20Tripan%20USA.avif", hasOpening: true, typeId: 'door_simple' },
-    { name: "Ramă Ușă Glisantă", price: 695, image: "https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/69130222c4dd8d5da11bdab3_Thermonord%20Tripan%20SLIDE.avif", hasOpening: true, typeId: 'slide' },
-  ];
-
-  const glassTypes = [
-    { name: "Fără sticlă", price: 0 },
-    { name: "Tripan Securizat + Laminat", price: 0 }
-  ];
-
-  const colorOptions = [
-    { name: "Antracit" },
-    { name: "Altă culoare (Comandă specială)" }
-  ];
-
-  let products = [];
-
-  function init() {
-    products = [{
-      id: Date.now().toString(),
-      type: productTypes[0].name,
-      typeId: productTypes[0].typeId,
-      price: productTypes[0].price,
-      image: productTypes[0].image,
-      hasOpening: productTypes[0].hasOpening,
-      opening: "Stânga",
-      color: colorOptions[0].name,
-      glassType: glassTypes[1].name,
-      width: 100,
-      height: 100,
-      quantity: 1
-    }];
-    render();
-  }
-
-  function render() {
-    renderProducts();
-    renderVisuals();
-    updateSummary();
-  }
-
-  function renderProducts() {
-    const container = document.getElementById('products-container');
-    if (!container) return;
-
-    container.innerHTML = products.map((product, index) => {
-      const currentProductType = productTypes.find(t => t.name === product.type);
-      const isCustomColor = product.color === "Altă culoare (Comandă specială)";
-
-      return `
-      <div class="product-card" id="card-${product.id}">
-        <div class="product-header">
-          <div class="product-number">${index + 1}</div>
-          <div class="product-title">Produs ${index + 1}</div>
-          ${products.length > 1 ? `
-            <button class="icon-btn" style="margin-left: auto;" onclick="WindowConfigurator.removeProduct('${product.id}')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
-            </button>
-          ` : ''}
-        </div>
-
-        <div class="input-group">
-          <div class="input-row">
-            <div class="select-highlight-wrapper">
-              <svg class="select-highlight-border" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <rect x="1" y="1" width="98" height="98" rx="16" ry="16" fill="none" stroke="currentColor" stroke-width="2"/>
-              </svg>
-              <select onchange="WindowConfigurator.updateProductType('${product.id}', this.value)">
-                ${productTypes.map(type => `
-                  <option value="${type.name}" ${product.type === type.name ? 'selected' : ''}>
-                    ${type.name}
-                  </option>
-                `).join('')}
-              </select>
-            </div>
-            <button class="icon-btn" onclick="window.open('https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691479db3bd4cdcdba58b6eb_RAME%20Thermonord%20GENESIS%2090.pdf', '_blank')">?</button>
-          </div>
-
-          <div class="quantity-row">
-            <span class="quantity-label">Cantitate:</span>
-            <div class="quantity-controls">
-              <button class="quantity-btn" onclick="WindowConfigurator.updateQuantity('${product.id}', -1)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
-              </button>
-              <span class="quantity-value">${product.quantity || 1}</span>
-              <button class="quantity-btn" onclick="WindowConfigurator.updateQuantity('${product.id}', 1)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <div class="input-row">
-            <select onchange="WindowConfigurator.updateGlassType('${product.id}', this.value)">
-              ${glassTypes.map(glass => `
-                <option value="${glass.name}" ${product.glassType === glass.name ? 'selected' : ''}>
-                  ${glass.name}
-                </option>
-              `).join('')}
-            </select>
-            <button class="icon-btn" onclick="window.open('https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691479db3bd4cdcdba58b6e1_GLASS%20Thermonord%20Tripan%20Securizat%20%2B%20Laminat.pdf', '_blank')">?</button>
-          </div>
-
-          <hr class="divider">
-
-          <select onchange="WindowConfigurator.updateColor('${product.id}', this.value)">
-            ${colorOptions.map(color => `
-              <option value="${color.name}" ${product.color === color.name ? 'selected' : ''}>
-                ${color.name}
-              </option>
-            `).join('')}
-          </select>
-
-          ${isCustomColor ? `
-            <input type="text"
-                   placeholder="Specificați culoarea (ex: RAL 7016)"
-                   value="${product.customColorNote || ''}"
-                   oninput="WindowConfigurator.updateProduct('${product.id}', 'customColorNote', this.value)">
-          ` : ''}
-
-          ${currentProductType && currentProductType.hasOpening ? `
-            <select onchange="WindowConfigurator.updateOpening('${product.id}', this.value)">
-              <option value="Stânga" ${product.opening === 'Stânga' ? 'selected' : ''}>Deschidere stânga</option>
-              <option value="Dreapta" ${product.opening === 'Dreapta' ? 'selected' : ''}>Deschidere dreapta</option>
-            </select>
-          ` : ''}
-
-          <div class="grid-2">
-            <div class="input-wrapper">
-              <input type="number" value="${product.width || ''}" oninput="WindowConfigurator.updateProduct('${product.id}', 'width', this.value)" placeholder="Lățime">
-              <span class="input-suffix">cm</span>
-            </div>
-            <div class="input-wrapper">
-              <input type="number" value="${product.height || ''}" oninput="WindowConfigurator.updateProduct('${product.id}', 'height', this.value)" placeholder="Înălțime">
-              <span class="input-suffix">cm</span>
-            </div>
-          </div>
-        </div>
-      </div>
-    `}).join('');
-  }
-
-  function renderVisuals() {
-    const container = document.getElementById('visuals-container');
-    if (!container) return;
-
-    while(container.children.length > products.length) {
-      container.removeChild(container.lastChild);
-    }
-    while(container.children.length < products.length) {
-      const div = document.createElement('div');
-      div.className = 'visual-card';
-      div.innerHTML = `<img src="" alt=""> <canvas style="display:none;"></canvas>`;
-      container.appendChild(div);
-    }
-
-    Array.from(container.children).forEach((div, index) => {
-      const product = products[index];
-      const img = div.querySelector('img');
-      const canvas = div.querySelector('canvas');
-
-      const hasBothDimensions = product.width > 0 && product.height > 0;
-
-      if (hasBothDimensions) {
-        div.classList.add('visible');
-        img.style.display = 'none';
-        canvas.style.display = 'block';
-        drawWindowDiagram(canvas, product);
-      } else {
-        div.classList.remove('visible');
-        img.style.display = 'none';
-        canvas.style.display = 'none';
-      }
-    });
-  }
-
-  function drawWindowDiagram(canvas, product) {
-    const ctx = canvas.getContext('2d');
-    const dpr = window.devicePixelRatio || 1;
-
-    const rect = canvas.parentElement.getBoundingClientRect();
-    canvas.width = rect.width * dpr;
-    canvas.height = rect.height * dpr;
-
-    ctx.scale(dpr, dpr);
-    const w = rect.width;
-    const h = rect.height;
-
-    ctx.clearRect(0, 0, w, h);
-
-    const mainColor = '#ffffff';
-    const frameFillColor = '#1a1a1a';
-    const handleColor = '#888888';
-    ctx.lineWidth = 1.2;
-    ctx.lineCap = 'square';
-    ctx.lineJoin = 'miter';
-
-    const inputW = parseFloat(product.width);
-    const inputH = parseFloat(product.height);
-    const padding = 40;
-
-    let drawW, drawH;
-    const availableW = w - (padding * 2);
-    const availableH = h - (padding * 2);
-    const inputRatio = inputW / inputH;
-    const canvasRatio = availableW / availableH;
-
-    if (inputRatio > canvasRatio) {
-      drawW = availableW;
-      drawH = availableW / inputRatio;
-    } else {
-      drawH = availableH;
-      drawW = availableH * inputRatio;
-    }
-
-    const startX = (w - drawW) / 2;
-    const startY = (h - drawH) / 2;
-
-    const frameThick = Math.min(drawW, drawH) * 0.06;
-    const innerX = startX + frameThick;
-    const innerY = startY + frameThick;
-    const innerW = drawW - (frameThick * 2);
-    const innerH = drawH - (frameThick * 2);
-
-    ctx.fillStyle = frameFillColor;
-    ctx.fillRect(startX, startY, drawW, drawH);
-
-    const glassGradient = ctx.createLinearGradient(innerX, innerY, innerX, innerY + innerH);
-    glassGradient.addColorStop(0, 'rgba(255, 255, 255, 0.1)');
-    glassGradient.addColorStop(1, 'rgba(200, 200, 220, 0.05)');
-    ctx.fillStyle = glassGradient;
-    ctx.fillRect(innerX, innerY, innerW, innerH);
-
-    ctx.strokeStyle = mainColor;
-    ctx.strokeRect(startX, startY, drawW, drawH);
-
-    if (product.typeId === 'slide') {
-      const midX = innerX + (innerW / 2);
-      ctx.strokeRect(innerX, innerY, innerW / 2, innerH);
-      ctx.strokeRect(midX, innerY, innerW / 2, innerH);
-      ctx.beginPath();
-      ctx.moveTo(startX, startY + drawH - (frameThick/3));
-      ctx.lineTo(startX + drawW, startY + drawH - (frameThick/3));
-      ctx.strokeStyle = "rgba(255,255,255,0.2)";
-      ctx.stroke();
-      ctx.strokeStyle = mainColor;
-    } else {
-      ctx.strokeRect(innerX, innerY, innerW, innerH);
-    }
-
-    if (product.hasOpening) {
-      ctx.beginPath();
-      const isLeft = product.opening === 'Stânga';
-
-      if (['classic', 'door_simple', 'door_osc', 'tilt_turn'].includes(product.typeId)) {
-        if (isLeft) {
-          ctx.moveTo(innerX, innerY);
-          ctx.lineTo(innerX + innerW, innerY + (innerH / 2));
-          ctx.lineTo(innerX, innerY + innerH);
-        } else {
-          ctx.moveTo(innerX + innerW, innerY);
-          ctx.lineTo(innerX, innerY + (innerH / 2));
-          ctx.lineTo(innerX + innerW, innerY + innerH);
-        }
-      }
-
-      if (['door_osc', 'tilt_turn'].includes(product.typeId)) {
-        ctx.moveTo(innerX, innerY + innerH);
-        ctx.lineTo(innerX + (innerW / 2), innerY);
-        ctx.lineTo(innerX + innerW, innerY + innerH);
-      }
-      ctx.stroke();
-
-      if (product.typeId === 'slide') {
-        const arrowY = innerY + (innerH / 2);
-        const arrowLen = Math.min(innerW, innerH) * 0.15;
-        const arrowHeadSize = arrowLen * 0.4;
-
-        let arrowStartX, arrowEndX;
-
-        if (isLeft) {
-          const paneCenter = innerX + (innerW/4);
-          arrowStartX = paneCenter - (arrowLen/2);
-          arrowEndX = paneCenter + (arrowLen/2);
-
-          ctx.beginPath();
-          ctx.moveTo(arrowStartX, arrowY);
-          ctx.lineTo(arrowEndX, arrowY);
-          ctx.stroke();
-
-          ctx.beginPath();
-          ctx.moveTo(arrowEndX, arrowY);
-          ctx.lineTo(arrowEndX - arrowHeadSize, arrowY - (arrowHeadSize/2));
-          ctx.lineTo(arrowEndX - arrowHeadSize, arrowY + (arrowHeadSize/2));
-          ctx.fillStyle = mainColor;
-          ctx.fill();
-        } else {
-          const paneCenter = innerX + innerW - (innerW/4);
-          arrowStartX = paneCenter + (arrowLen/2);
-          arrowEndX = paneCenter - (arrowLen/2);
-
-          ctx.beginPath();
-          ctx.moveTo(arrowStartX, arrowY);
-          ctx.lineTo(arrowEndX, arrowY);
-          ctx.stroke();
-
-          ctx.beginPath();
-          ctx.moveTo(arrowEndX, arrowY);
-          ctx.lineTo(arrowEndX + arrowHeadSize, arrowY - (arrowHeadSize/2));
-          ctx.lineTo(arrowEndX + arrowHeadSize, arrowY + (arrowHeadSize/2));
-          ctx.fillStyle = mainColor;
-          ctx.fill();
-        }
-      }
-
-      ctx.fillStyle = handleColor;
-
-      if (product.typeId === 'slide') {
-        const handleH = innerH * 0.4;
-        const handleW = Math.max(4, innerW * 0.015);
-        const handleY = innerY + (innerH / 2) - (handleH / 2);
-        let handleX;
-
-        if (isLeft) {
-          handleX = innerX + (innerW/4) - (handleW/2);
-        } else {
-          handleX = innerX + innerW - (innerW/4) - (handleW/2);
-        }
-
-        ctx.beginPath();
-        ctx.roundRect(handleX, handleY, handleW, handleH, handleW);
-        ctx.fill();
-      } else {
-        const handleH = Math.max(20, innerH * 0.15);
-        const handleW = handleH / 4;
-        const handleY = innerY + (innerH / 2) - (handleH / 2);
-        let handleX;
-
-        if (isLeft) {
-          handleX = innerX + innerW - (handleW * 1.5);
-        } else {
-          handleX = innerX + (handleW * 0.5);
-        }
-
-        ctx.beginPath();
-        ctx.roundRect(handleX, handleY, handleW, handleH, handleW/2);
-        ctx.fill();
-      }
-    }
-  }
-
-  function addProduct() {
-    products.push({
-      id: Date.now().toString(),
-      type: productTypes[0].name,
-      typeId: productTypes[0].typeId,
-      price: productTypes[0].price,
-      image: productTypes[0].image,
-      hasOpening: productTypes[0].hasOpening,
-      opening: "Stânga",
-      color: colorOptions[0].name,
-      glassType: glassTypes[1].name,
-      width: 100,
-      height: 100,
-      quantity: 1
-    });
-    render();
-  }
-
-  function updateQuantity(id, delta) {
-    products = products.map(p => {
-      if (p.id === id) {
-        const newQty = Math.max(1, (p.quantity || 1) + delta);
-        return { ...p, quantity: newQty };
-      }
-      return p;
-    });
-    renderProducts();
-    updateSummary();
-  }
-
-  function removeProduct(id) {
-    products = products.filter(p => p.id !== id);
-    render();
-  }
-
-  function updateProduct(id, field, value) {
-    products = products.map(p => {
-      if (p.id === id) {
-        const finalVal = (field === 'width' || field === 'height') ? Number(value) : value;
-        return { ...p, [field]: finalVal };
-      }
-      return p;
-    });
-    renderVisuals();
-    updateSummary();
-  }
-
-  function updateProductType(id, typeName) {
-    const selectedType = productTypes.find(t => t.name === typeName);
-    products = products.map(p => {
-      if (p.id === id) {
-        return {
-          ...p,
-          type: typeName,
-          typeId: selectedType.typeId,
-          price: selectedType.price,
-          image: selectedType.image,
-          hasOpening: selectedType.hasOpening
-        };
-      }
-      return p;
-    });
-    render();
-  }
-
-  function updateGlassType(id, glassName) {
-    products = products.map(p => {
-      if (p.id === id) return { ...p, glassType: glassName };
-      return p;
-    });
-    updateSummary();
-  }
-
-  function updateColor(id, colorName) {
-    products = products.map(p => {
-      if (p.id === id) return { ...p, color: colorName };
-      return p;
-    });
-    renderProducts();
-    updateSummary();
-  }
-
-  function updateOpening(id, openingDir) {
-    products = products.map(p => {
-      if (p.id === id) return { ...p, opening: openingDir };
-      return p;
-    });
-    renderVisuals();
-    updateSummary();
-  }
-
-  function updateSummary() {
-    const summaryContainer = document.getElementById('summary-items');
-    if (!summaryContainer) return;
-
-    summaryContainer.innerHTML = products.map((product, index) => {
-      const sqm = (product.width * product.height) / 10000;
-      const qty = product.quantity || 1;
-      const itemTotal = sqm * product.price * qty;
-      const openingText = product.hasOpening ? ` - ${product.opening}` : '';
-      const qtyText = qty > 1 ? ` x${qty}` : '';
-
-      let colorDisplay = product.color;
-      if (product.color.includes("Altă culoare") && product.customColorNote) {
-        colorDisplay = `Custom: ${product.customColorNote}`;
-      }
-
-      return `<div class="summary-item">${index + 1}. ${product.type}${qtyText}<br><span class="summary-details">${product.glassType} - ${colorDisplay}${openingText} - L:${product.width}cm x H:${product.height}cm - ${itemTotal.toFixed(2)} EUR</span></div>`;
-    }).join('');
-
-    const total = products.reduce((sum, product) => {
-      const sqm = (product.width * product.height) / 10000;
-      const qty = product.quantity || 1;
-      return sum + (sqm * product.price * qty);
-    }, 0);
-
-    document.getElementById('total').textContent = total.toFixed(2);
-  }
-
-  function getFormData() {
-    const productsString = products.map((product, index) => {
-      const sqm = (product.width * product.height) / 10000;
-      const qty = product.quantity || 1;
-      const itemTotal = sqm * product.price * qty;
-      const openingText = product.hasOpening ? ` - ${product.opening}` : '';
-      const qtyText = qty > 1 ? ` x${qty}` : '';
-
-      let colorDisplay = product.color;
-      if (product.color.includes("Altă culoare") && product.customColorNote) {
-        colorDisplay = `Custom: ${product.customColorNote}`;
-      }
-
-      return `${index + 1}. ${product.type}${qtyText} - ${product.glassType} - ${colorDisplay}${openingText} - L:${product.width}cm x H:${product.height}cm - ${itemTotal.toFixed(2)} EUR`;
-    }).join('\n');
-
-    const total = products.reduce((sum, product) => {
-      const sqm = (product.width * product.height) / 10000;
-      const qty = product.quantity || 1;
-      return sum + (sqm * product.price * qty);
-    }, 0);
-
-    const totalQty = products.reduce((sum, p) => sum + (p.quantity || 1), 0);
-
-    return {
-      products: productsString,
-      total: total.toFixed(2),
-      count: totalQty.toString()
-    };
-  }
-
-  return {
-    init,
-    addProduct,
-    removeProduct,
-    updateProduct,
-    updateProductType,
-    updateGlassType,
-    updateColor,
-    updateOpening,
-    updateQuantity,
-    getFormData
-  };
-})();
-
-// Initialize on DOM ready
 document.addEventListener('DOMContentLoaded', function() {
   updateProgress();
+  updateBackButton();
+  updateHeader();
+
+  // Handle window resize for canvas
+  window.addEventListener('resize', () => {
+    if (state.currentScreen === 'screen-configurator') {
+      renderPreview();
+    }
+  });
 });
