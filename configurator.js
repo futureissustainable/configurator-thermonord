@@ -11,8 +11,7 @@ const frameTypes = [
     priceNoGlass: 145,
     benefit: 'Fără deschidere',
     hasOpening: false,
-    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a01229532b19ecc8c7e3_GEAM%20FIX.avif',
-    badge: null
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a01229532b19ecc8c7e3_GEAM%20FIX.avif'
   },
   {
     id: 'classic',
@@ -21,8 +20,7 @@ const frameTypes = [
     priceNoGlass: 285,
     benefit: 'Deschidere laterală',
     hasOpening: true,
-    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a013c2a9c19c34419641_GEAM%20CLASIC.avif',
-    badge: null
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a013c2a9c19c34419641_GEAM%20CLASIC.avif'
   },
   {
     id: 'tilt_turn',
@@ -31,8 +29,7 @@ const frameTypes = [
     priceNoGlass: 315,
     benefit: 'Deschidere + ventilație',
     hasOpening: true,
-    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a013b86458b58644ee1c_GEAM%20OSCILO.avif',
-    badge: { text: '⭐ POPULAR', type: 'popular' }
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a013b86458b58644ee1c_GEAM%20OSCILO.avif'
   },
   {
     id: 'door_simple',
@@ -41,8 +38,7 @@ const frameTypes = [
     priceNoGlass: 380,
     benefit: 'Clasică, sigură',
     hasOpening: true,
-    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a0137aaa35d972df7ada_USA%20CLASICA.avif',
-    badge: null
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a0137aaa35d972df7ada_USA%20CLASICA.avif'
   },
   {
     id: 'slide',
@@ -51,8 +47,7 @@ const frameTypes = [
     priceNoGlass: 495,
     benefit: 'Deschidere panoramică',
     hasOpening: true,
-    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a01110b71c03a7f7cfef_GEAM%20SLIDE.avif',
-    badge: { text: 'PREMIUM', type: 'premium' }
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a01110b71c03a7f7cfef_GEAM%20SLIDE.avif'
   }
 ];
 
@@ -194,15 +189,11 @@ function renderFrameGrid() {
 
   grid.innerHTML = frameTypes.map(frame => {
     const price = state.hasGlass ? frame.priceWithGlass : frame.priceNoGlass;
-    const badgeHtml = frame.badge
-      ? `<span class="frame-badge ${frame.badge.type}">${frame.badge.text}</span>`
-      : '';
 
     return `
       <div class="frame-card" onclick="selectFrameType('${frame.id}')" data-frame="${frame.id}">
         <div class="frame-image">
           <img src="${frame.image}" alt="${frame.name}" loading="lazy">
-          ${badgeHtml}
         </div>
         <div class="frame-info">
           <div class="frame-name">${frame.name}</div>
