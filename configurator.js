@@ -11,7 +11,7 @@ const frameTypes = [
     priceNoGlass: 145,
     benefit: 'Fără deschidere',
     hasOpening: false,
-    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691302224093ef3c30939e72_Thermonord%20Tripan%20FIX.avif',
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a01229532b19ecc8c7e3_GEAM%20FIX.avif',
     badge: null
   },
   {
@@ -21,7 +21,7 @@ const frameTypes = [
     priceNoGlass: 285,
     benefit: 'Deschidere laterală',
     hasOpening: true,
-    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691302227d7c4d41b1078486_Thermonord%20Tripan%20GEAM%20CLASIC.avif',
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a013c2a9c19c34419641_GEAM%20CLASIC.avif',
     badge: null
   },
   {
@@ -31,7 +31,7 @@ const frameTypes = [
     priceNoGlass: 315,
     benefit: 'Deschidere + ventilație',
     hasOpening: true,
-    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/69130220a3a0f59d430752dc_Thermonord%20Tripan%20OSCILOBATANT.avif',
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a013b86458b58644ee1c_GEAM%20OSCILO.avif',
     badge: { text: '⭐ POPULAR', type: 'popular' }
   },
   {
@@ -41,7 +41,7 @@ const frameTypes = [
     priceNoGlass: 380,
     benefit: 'Clasică, sigură',
     hasOpening: true,
-    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/691302227033c8b97f33857b_Thermonord%20Tripan%20USA.avif',
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a0137aaa35d972df7ada_USA%20CLASICA.avif',
     badge: null
   },
   {
@@ -51,7 +51,7 @@ const frameTypes = [
     priceNoGlass: 495,
     benefit: 'Deschidere panoramică',
     hasOpening: true,
-    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/69130222c4dd8d5da11bdab3_Thermonord%20Tripan%20SLIDE.avif',
+    image: 'https://cdn.prod.website-files.com/6911a9ea752f8b71a4122002/6936a01110b71c03a7f7cfef_GEAM%20SLIDE.avif',
     badge: { text: 'PREMIUM', type: 'premium' }
   }
 ];
