@@ -14,9 +14,8 @@
   <div class="configurator">
     <header class="header" id="mainHeader">
       <div class="progress-steps">
-        <span class="progress-step active" data-step="1">Sticlă</span>
-        <span class="progress-step" data-step="2">Ramă</span>
-        <span class="progress-step" data-step="3">Configurare</span>
+        <span class="progress-step active" data-step="1">Ramă</span>
+        <span class="progress-step" data-step="2">Configurare</span>
       </div>
       <div class="progress-track">
         <div class="progress-fill" id="progressFill"></div>
@@ -25,47 +24,9 @@
 
     <div class="main-content">
 
-      <!-- Screen 1: Glass Choice -->
-      <div class="screen active" id="screen-glass">
+      <!-- Screen 1: Frame Type -->
+      <div class="screen active" id="screen-frame">
         <span class="question-number">Pasul 01</span>
-        <h1 class="question-title">Alege tipul de ramă</h1>
-
-        <div class="options-grid cols-2 glass-options">
-          <div class="option-card glass-card" onclick="selectGlass(true)" data-value="with-glass">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon large">
-              <svg viewBox="0 0 48 48">
-                <rect x="8" y="6" width="32" height="36" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="12" y="10" width="24" height="28" fill="rgba(255,255,255,0.1)" stroke="currentColor" stroke-width="1"/>
-                <path d="M12 24h24M24 10v28" stroke="currentColor" stroke-width="1" opacity="0.5"/>
-              </svg>
-            </div>
-            <div class="option-title">Rame cu sticlă</div>
-            <div class="option-description">Tripan securizat inclus</div>
-            <span class="option-tag green">Recomandat</span>
-          </div>
-
-          <div class="option-card glass-card" onclick="selectGlass(false)" data-value="no-glass">
-            <div class="check-icon">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-            </div>
-            <div class="option-icon large">
-              <svg viewBox="0 0 48 48">
-                <rect x="8" y="6" width="32" height="36" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
-                <rect x="12" y="10" width="24" height="28" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="4 2"/>
-              </svg>
-            </div>
-            <div class="option-title">Rame fără sticlă</div>
-            <div class="option-description">Doar structura</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Screen 2: Frame Type -->
-      <div class="screen" id="screen-frame">
-        <span class="question-number">Pasul 02</span>
         <h1 class="question-title">Alege tipul de ramă</h1>
 
         <div class="frame-grid" id="frameGrid">
@@ -77,9 +38,9 @@
       <div class="screen" id="screen-configurator">
         <div class="config-header-bar">
           <div class="config-selection-info">
-            <span id="configHeaderText">Oscilobatantă · Cu sticlă</span>
+            <span id="configHeaderText">Oscilobatantă</span>
           </div>
-          <button class="change-link" onclick="goToScreen('screen-glass')">Schimbă</button>
+          <button class="change-link" onclick="goToScreen('screen-frame')">Schimbă</button>
         </div>
 
         <div class="configurator-layout">
@@ -88,6 +49,15 @@
           </div>
 
           <div class="config-controls">
+            <!-- Glass Option -->
+            <div class="control-section">
+              <label class="control-label">Sticlă</label>
+              <div class="toggle-buttons">
+                <button class="toggle-btn active" data-value="with-glass" onclick="setGlass(true)">Cu sticlă</button>
+                <button class="toggle-btn" data-value="no-glass" onclick="setGlass(false)">Fără sticlă</button>
+              </div>
+            </div>
+
             <!-- Dimensions -->
             <div class="control-section">
               <label class="control-label">Dimensiuni</label>
