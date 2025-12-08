@@ -53,11 +53,11 @@ const frameTypes = [
 
 // State management
 const state = {
-  currentScreen: 'screen-glass',
+  currentScreen: 'screen-frame',
   history: [],
 
   // Product configuration
-  hasGlass: null,
+  hasGlass: true,  // Default to with glass (recommended)
   frameType: null,
 
   // Current product being configured
@@ -114,7 +114,7 @@ function goBack() {
 
 function updateBackButton() {
   const backBtn = document.getElementById('backBtn');
-  const hideOnScreens = ['screen-glass', 'screen-success', 'screen-email'];
+  const hideOnScreens = ['screen-frame', 'screen-success', 'screen-email'];
 
   if (state.history.length > 0 && !hideOnScreens.includes(state.currentScreen)) {
     backBtn.classList.remove('hidden');
@@ -136,7 +136,7 @@ function updateHeader() {
 
 function updateProgress() {
   const progressFill = document.getElementById('progressFill');
-  const screenOrder = ['screen-glass', 'screen-frame', 'screen-configurator'];
+  const screenOrder = ['screen-frame', 'screen-configurator'];
   const currentIndex = screenOrder.indexOf(state.currentScreen);
 
   let progress = 0;
@@ -157,30 +157,27 @@ function updateProgress() {
 }
 
 // ============================================
-// Screen 1: Glass Selection
+// Glass Toggle (in Configurator)
 // ============================================
 
-function selectGlass(hasGlass) {
+function setGlass(hasGlass) {
   state.hasGlass = hasGlass;
 
-  // Visual feedback
-  document.querySelectorAll('.glass-card').forEach(card => {
-    card.classList.remove('selected');
+  // Update toggle buttons visual state
+  document.querySelectorAll('.control-section .toggle-btn[data-value="with-glass"], .control-section .toggle-btn[data-value="no-glass"]').forEach(btn => {
+    btn.classList.remove('active');
+    if ((btn.dataset.value === 'with-glass' && hasGlass) || (btn.dataset.value === 'no-glass' && !hasGlass)) {
+      btn.classList.add('active');
+    }
   });
-  const selectedCard = document.querySelector(`.glass-card[data-value="${hasGlass ? 'with-glass' : 'no-glass'}"]`);
-  if (selectedCard) {
-    selectedCard.classList.add('selected');
-  }
 
-  // Advance after brief delay
-  setTimeout(() => {
-    goToScreen('screen-frame');
-    renderFrameGrid();
-  }, 300);
+  // Update price and preview
+  updateConfig();
+  renderPreview();
 }
 
 // ============================================
-// Screen 2: Frame Type Selection
+// Screen 1: Frame Type Selection
 // ============================================
 
 function renderFrameGrid() {
@@ -188,7 +185,9 @@ function renderFrameGrid() {
   if (!grid) return;
 
   grid.innerHTML = frameTypes.map(frame => {
-    const price = state.hasGlass ? frame.priceWithGlass : frame.priceNoGlass;
+    // Show price with glass (default) and price range
+    const priceFrom = frame.priceNoGlass;
+    const priceTo = frame.priceWithGlass;
 
     return `
       <div class="frame-card" onclick="selectFrameType('${frame.id}')" data-frame="${frame.id}">
@@ -197,7 +196,7 @@ function renderFrameGrid() {
         </div>
         <div class="frame-info">
           <div class="frame-name">${frame.name}</div>
-          <div class="frame-price">€${price}/m²</div>
+          <div class="frame-price">de la €${priceFrom}/m²</div>
           <div class="frame-benefit">${frame.benefit}</div>
         </div>
       </div>
@@ -228,14 +227,13 @@ function selectFrameType(frameId) {
 }
 
 // ============================================
-// Screen 3: Configurator
+// Screen 2: Configurator
 // ============================================
 
 function initConfigurator() {
-  // Update header bar
+  // Update header bar with just frame name
   const headerText = document.getElementById('configHeaderText');
-  const glassText = state.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
-  headerText.textContent = `${state.frameType.name} · ${glassText}`;
+  headerText.textContent = state.frameType.name;
 
   // Show/hide opening direction based on frame type
   const openingSection = document.getElementById('openingSection');
@@ -244,6 +242,14 @@ function initConfigurator() {
   } else {
     openingSection.style.display = 'none';
   }
+
+  // Update glass toggle buttons based on current state
+  document.querySelectorAll('.control-section .toggle-btn[data-value="with-glass"], .control-section .toggle-btn[data-value="no-glass"]').forEach(btn => {
+    btn.classList.remove('active');
+    if ((btn.dataset.value === 'with-glass' && state.hasGlass) || (btn.dataset.value === 'no-glass' && !state.hasGlass)) {
+      btn.classList.add('active');
+    }
+  });
 
   // Reset current product if not editing
   if (state.editingProductIndex === null) {
@@ -695,7 +701,7 @@ function removeProduct(index) {
 function addAnotherProduct() {
   // Reset for new product
   state.editingProductIndex = null;
-  state.hasGlass = null;
+  state.hasGlass = true;  // Reset to default (with glass)
   state.frameType = null;
   state.currentProduct = {
     width: null,
@@ -706,7 +712,7 @@ function addAnotherProduct() {
     quantity: 1
   };
 
-  goToScreen('screen-glass');
+  goToScreen('screen-frame');
 }
 
 // ============================================
@@ -842,6 +848,9 @@ document.addEventListener('DOMContentLoaded', function() {
   updateProgress();
   updateBackButton();
   updateHeader();
+
+  // Render frame grid on initial load (now the first screen)
+  renderFrameGrid();
 
   // Handle window resize for canvas
   window.addEventListener('resize', () => {
