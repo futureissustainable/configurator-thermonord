@@ -58,36 +58,36 @@
               </div>
             </div>
 
-            <!-- Dimensions -->
+            <!-- Dimensions + Quantity (same row) -->
             <div class="control-section">
-              <label class="control-label">Dimensiuni</label>
-              <div class="dimension-presets">
-                <button class="preset-btn" onclick="setPresetDimensions(120, 140)">120 × 140</button>
-                <button class="preset-btn" onclick="setPresetDimensions(150, 150)">150 × 150</button>
-                <button class="preset-btn" onclick="setPresetDimensions(180, 200)">180 × 200</button>
-              </div>
-              <div class="dimension-manual-label">sau introdu manual:</div>
-              <div class="dimension-inputs">
-                <div class="input-wrapper">
-                  <input type="number" id="inputWidth" placeholder="Lățime" oninput="updateConfig()">
-                  <span class="input-suffix">cm</span>
+              <div class="control-row">
+                <div class="control-col">
+                  <label class="control-label">Dimensiuni</label>
+                  <div class="dimension-inputs">
+                    <div class="input-wrapper">
+                      <input type="number" id="inputWidth" placeholder="Lățime" oninput="updateConfig()">
+                      <span class="input-suffix">cm</span>
+                    </div>
+                    <span class="dimension-x">×</span>
+                    <div class="input-wrapper">
+                      <input type="number" id="inputHeight" placeholder="Înălțime" oninput="updateConfig()">
+                      <span class="input-suffix">cm</span>
+                    </div>
+                  </div>
                 </div>
-                <span class="dimension-x">×</span>
-                <div class="input-wrapper">
-                  <input type="number" id="inputHeight" placeholder="Înălțime" oninput="updateConfig()">
-                  <span class="input-suffix">cm</span>
+                <div class="control-col quantity-col">
+                  <label class="control-label">Cantitate</label>
+                  <div class="quantity-controls">
+                    <button class="quantity-btn" onclick="adjustQuantity(-1)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
+                    </button>
+                    <span class="quantity-value" id="quantityValue">1</span>
+                    <button class="quantity-btn" onclick="adjustQuantity(1)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <!-- Color -->
-            <div class="control-section">
-              <label class="control-label">Culoare</label>
-              <select id="selectColor" onchange="updateConfig()">
-                <option value="Antracit">Antracit</option>
-                <option value="Altă culoare">Altă culoare</option>
-              </select>
-              <input type="text" id="inputCustomColor" class="hidden" placeholder="ex: RAL 7016" oninput="updateConfig()">
             </div>
 
             <!-- Opening Direction (conditional) -->
@@ -99,18 +99,14 @@
               </div>
             </div>
 
-            <!-- Quantity -->
+            <!-- Color -->
             <div class="control-section">
-              <label class="control-label">Cantitate</label>
-              <div class="quantity-controls">
-                <button class="quantity-btn" onclick="adjustQuantity(-1)">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
-                </button>
-                <span class="quantity-value" id="quantityValue">1</span>
-                <button class="quantity-btn" onclick="adjustQuantity(1)">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-                </button>
-              </div>
+              <label class="control-label">Culoare</label>
+              <select id="selectColor" onchange="updateConfig()">
+                <option value="Antracit">Antracit</option>
+                <option value="Altă culoare">Altă culoare</option>
+              </select>
+              <input type="text" id="inputCustomColor" class="hidden" placeholder="ex: RAL 7016" oninput="updateConfig()">
             </div>
 
             <!-- Price Display -->
