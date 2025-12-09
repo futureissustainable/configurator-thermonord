@@ -671,6 +671,21 @@ function renderCart() {
   // Calculate total
   const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
   totalEl.textContent = formatPrice(total);
+
+  // Populate hidden form inputs for Webflow
+  const productsString = state.cart.map((product) => {
+    const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
+    const openingText = product.opening ? ` - ${product.opening}` : '';
+    const colorText = product.color === 'Altă culoare' && product.customColor
+      ? product.customColor
+      : product.color;
+    return `${product.quantity}x ${product.frameName} - ${glassText} - ${colorText}${openingText} - ${product.width}x${product.height}cm - €${product.calculatedPrice.toFixed(2)}`;
+  }).join(' | ');
+
+  const formProducts = document.getElementById('formProducts');
+  const formTotal = document.getElementById('formTotal');
+  if (formProducts) formProducts.value = productsString;
+  if (formTotal) formTotal.value = total.toFixed(2);
 }
 
 function editProduct(index) {

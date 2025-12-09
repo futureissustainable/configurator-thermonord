@@ -1616,6 +1616,11 @@ input[type="number"] { -moz-appearance: textfield; }
   color: var(--text-primary);
 }
 
+.add-more-btn {
+  width: 100%;
+  margin-bottom: 2rem;
+}
+
 .cart-actions .cta-btn {
   flex: 1;
   margin-top: 0;
