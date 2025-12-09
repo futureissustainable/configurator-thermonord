@@ -49,15 +49,6 @@
           </div>
 
           <div class="config-controls">
-            <!-- Glass Option -->
-            <div class="control-section">
-              <label class="control-label">Sticlă</label>
-              <div class="toggle-buttons">
-                <button class="toggle-btn active" data-value="with-glass" onclick="setGlass(true)">Cu sticlă</button>
-                <button class="toggle-btn" data-value="no-glass" onclick="setGlass(false)">Fără sticlă</button>
-              </div>
-            </div>
-
             <!-- Dimensions + Quantity (same row) -->
             <div class="control-section">
               <div class="control-row">
@@ -76,7 +67,6 @@
                   </div>
                 </div>
                 <div class="control-col quantity-col">
-                  <label class="control-label">Cantitate</label>
                   <div class="quantity-controls">
                     <button class="quantity-btn" onclick="adjustQuantity(-1)">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
@@ -107,6 +97,15 @@
                 <option value="Altă culoare">Altă culoare</option>
               </select>
               <input type="text" id="inputCustomColor" class="hidden" placeholder="ex: RAL 7016" oninput="updateConfig()">
+            </div>
+
+            <!-- Glass Option -->
+            <div class="control-section">
+              <label class="control-label">Sticlă</label>
+              <div class="toggle-buttons">
+                <button class="toggle-btn active" data-value="with-glass" onclick="setGlass(true)">Cu sticlă</button>
+                <button class="toggle-btn" data-value="no-glass" onclick="setGlass(false)">Fără sticlă</button>
+              </div>
             </div>
 
             <!-- Price Display -->
