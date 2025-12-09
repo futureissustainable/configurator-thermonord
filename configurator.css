@@ -1394,6 +1394,13 @@ input[type="number"] { -moz-appearance: textfield; }
   color: var(--premium-accent);
 }
 
+.dimension-manual-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 200;
+  margin-top: 0.5rem;
+}
+
 /* Toggle Buttons */
 .toggle-buttons {
   display: flex;
@@ -1607,6 +1614,11 @@ input[type="number"] { -moz-appearance: textfield; }
 .secondary-btn:hover {
   border-color: var(--text-primary);
   color: var(--text-primary);
+}
+
+.add-more-btn {
+  width: 100%;
+  margin-bottom: 2rem;
 }
 
 .cart-actions .cta-btn {

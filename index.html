@@ -61,6 +61,12 @@
             <!-- Dimensions -->
             <div class="control-section">
               <label class="control-label">Dimensiuni</label>
+              <div class="dimension-presets">
+                <button class="preset-btn" onclick="setPresetDimensions(120, 140)">120 × 140</button>
+                <button class="preset-btn" onclick="setPresetDimensions(150, 150)">150 × 150</button>
+                <button class="preset-btn" onclick="setPresetDimensions(180, 200)">180 × 200</button>
+              </div>
+              <div class="dimension-manual-label">sau introdu manual:</div>
               <div class="dimension-inputs">
                 <div class="input-wrapper">
                   <input type="number" id="inputWidth" placeholder="Lățime" oninput="updateConfig()">
@@ -138,16 +144,18 @@
             </div>
           </div>
 
-          <div class="cart-actions">
-            <button class="secondary-btn" onclick="addAnotherProduct()">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-              Adaugă alt produs
-            </button>
-            <button class="cta-btn" onclick="goToQualification()">
-              Continuă spre ofertă
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-            </button>
-          </div>
+          <button class="secondary-btn add-more-btn" onclick="addAnotherProduct()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+            Adaugă alt produs
+          </button>
+
+          <!-- Hidden inputs for Webflow form - JS will populate these -->
+          <input type="hidden" id="formProducts" name="products" value="">
+          <input type="hidden" id="formTotal" name="total" value="">
+
+          <!-- ADD YOUR WEBFLOW FORM HERE -->
+          <!-- The form fields (name, email, phone, timeline) and submit button -->
+
         </div>
       </div>
 
