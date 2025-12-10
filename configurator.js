@@ -995,17 +995,19 @@ function initWebflowForm() {
     }
   });
 
-  // Hidden fields for cart data
+  // Hidden fields for cart data (use text with CSS hide - Webflow ignores type=hidden)
   const hiddenProducts = document.createElement('input');
-  hiddenProducts.type = 'hidden';
+  hiddenProducts.type = 'text';
   hiddenProducts.name = 'products';
   hiddenProducts.id = 'formProducts';
+  hiddenProducts.style.cssText = 'position:absolute;left:-9999px;height:0;opacity:0;';
   container.appendChild(hiddenProducts);
 
   const hiddenTotal = document.createElement('input');
-  hiddenTotal.type = 'hidden';
+  hiddenTotal.type = 'text';
   hiddenTotal.name = 'total';
   hiddenTotal.id = 'formTotal';
+  hiddenTotal.style.cssText = 'position:absolute;left:-9999px;height:0;opacity:0;';
   container.appendChild(hiddenTotal);
 
   // Create submit button
