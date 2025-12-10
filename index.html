@@ -49,34 +49,32 @@
           </div>
 
           <div class="config-controls">
-            <!-- Dimensions + Quantity (same row) -->
+            <!-- Dimensions -->
             <div class="control-section">
-              <div class="control-row">
-                <div class="control-col">
-                  <label class="control-label">Dimensiuni</label>
-                  <div class="dimension-inputs">
-                    <div class="input-wrapper">
-                      <input type="number" id="inputWidth" placeholder="Lățime" oninput="updateConfig()">
-                      <span class="input-suffix">cm</span>
-                    </div>
-                    <span class="dimension-x">×</span>
-                    <div class="input-wrapper">
-                      <input type="number" id="inputHeight" placeholder="Înălțime" oninput="updateConfig()">
-                      <span class="input-suffix">cm</span>
-                    </div>
-                  </div>
+              <label class="control-label">Dimensiuni</label>
+              <div class="dimension-inputs">
+                <div class="input-wrapper">
+                  <input type="number" id="inputWidth" placeholder="Lățime" oninput="updateConfig()">
+                  <span class="input-suffix">cm</span>
                 </div>
-                <div class="control-col quantity-col">
-                  <div class="quantity-controls">
-                    <button class="quantity-btn" onclick="adjustQuantity(-1)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
-                    </button>
-                    <span class="quantity-value" id="quantityValue">1</span>
-                    <button class="quantity-btn" onclick="adjustQuantity(1)">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
-                    </button>
-                  </div>
+                <span class="dimension-x">×</span>
+                <div class="input-wrapper">
+                  <input type="number" id="inputHeight" placeholder="Înălțime" oninput="updateConfig()">
+                  <span class="input-suffix">cm</span>
                 </div>
+              </div>
+            </div>
+
+            <!-- Quantity -->
+            <div class="control-section">
+              <div class="quantity-controls full-width">
+                <button class="quantity-btn" onclick="adjustQuantity(-1)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/></svg>
+                </button>
+                <span class="quantity-value" id="quantityValue">1</span>
+                <button class="quantity-btn" onclick="adjustQuantity(1)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                </button>
               </div>
             </div>
 
