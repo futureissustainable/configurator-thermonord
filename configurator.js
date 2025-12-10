@@ -878,18 +878,25 @@ function submitEmail(event) {
 function initWebflowForm() {
   // Find the Webflow form by ID
   const form = document.getElementById('cart-form');
-  if (!form) return;
+  if (!form) {
+    // Retry after a short delay in case Webflow loads form later
+    setTimeout(initWebflowForm, 100);
+    return;
+  }
 
-  // Find the cart content area where we want to place the form
-  const cartContent = document.querySelector('#screen-cart .cart-content');
-  if (!cartContent) return;
+  // Find the cart container where we want to place the form
+  const cartContainer = document.querySelector('#screen-cart .cart-container');
+  if (!cartContainer) return;
 
   // Get the form's parent container (the w-form div)
   const formBlock = form.closest('.w-form');
   if (!formBlock) return;
 
+  // Check if already moved
+  if (formBlock.parentElement === cartContainer) return;
+
   // Move the entire form block into the cart screen
-  cartContent.appendChild(formBlock);
+  cartContainer.appendChild(formBlock);
 
   // Hide the formProducts and formTotal fields
   const formProducts = document.getElementById('formProducts');
