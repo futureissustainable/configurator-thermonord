@@ -698,10 +698,39 @@ function renderCart() {
     return `${product.quantity}x ${product.frameName} - ${glassText} - ${colorText}${openingText} - ${product.width}x${product.height}cm - €${product.calculatedPrice.toFixed(2)}`;
   }).join(' | ');
 
-  const formProducts = document.getElementById('formProducts');
-  const formTotal = document.getElementById('formTotal');
-  if (formProducts) formProducts.value = productsString;
-  if (formTotal) formTotal.value = total.toFixed(2);
+  // Populate the form fields with cart data
+  populateFormFields(productsString, total);
+}
+
+function populateFormFields(productsString, total) {
+  let formProducts = document.getElementById('formProducts');
+  let formTotal = document.getElementById('formTotal');
+
+  // If fields don't exist, try to initialize form and retry
+  if (!formProducts || !formTotal) {
+    console.log('[Cart] Form fields not found, initializing form...');
+    initWebflowForm();
+
+    // Check again after a short delay (form might need time to initialize)
+    setTimeout(() => {
+      formProducts = document.getElementById('formProducts');
+      formTotal = document.getElementById('formTotal');
+
+      if (formProducts) {
+        formProducts.value = productsString;
+        console.log('[Cart] Set formProducts (delayed):', productsString);
+      }
+      if (formTotal) {
+        formTotal.value = total.toFixed(2);
+        console.log('[Cart] Set formTotal (delayed):', total.toFixed(2));
+      }
+    }, 200);
+    return;
+  }
+
+  formProducts.value = productsString;
+  formTotal.value = total.toFixed(2);
+  console.log('[Cart] Set form fields - products:', productsString, 'total:', total.toFixed(2));
 }
 
 function editProduct(index) {
