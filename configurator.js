@@ -672,6 +672,22 @@ function renderCart() {
   const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
   totalEl.textContent = formatPrice(total);
 
+  // Show/hide incentive message based on total
+  const incentiveEl = document.getElementById('cartIncentive');
+  const incentiveUnlockedEl = document.getElementById('cartIncentiveUnlocked');
+  if (incentiveEl && incentiveUnlockedEl) {
+    if (total > 0 && total < 5000) {
+      incentiveEl.classList.remove('hidden');
+      incentiveUnlockedEl.classList.add('hidden');
+    } else if (total >= 5000) {
+      incentiveEl.classList.add('hidden');
+      incentiveUnlockedEl.classList.remove('hidden');
+    } else {
+      incentiveEl.classList.add('hidden');
+      incentiveUnlockedEl.classList.add('hidden');
+    }
+  }
+
   // Populate hidden form inputs for Webflow
   const productsString = state.cart.map((product) => {
     const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
