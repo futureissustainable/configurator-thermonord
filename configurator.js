@@ -1018,6 +1018,28 @@ function initWebflowForm() {
   submitBtn.className = 'form-submit';
   container.appendChild(submitBtn);
 
+  // Add submit event listener to inject cart data right before submission
+  form.addEventListener('submit', function(e) {
+    console.log('[Form] Submit triggered, injecting cart data...');
+
+    const productsString = state.cart.map((product) => {
+      const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
+      const openingText = product.opening ? ` - ${product.opening}` : '';
+      const colorText = product.color === 'Altă culoare' && product.customColor
+        ? product.customColor
+        : product.color;
+      return `${product.quantity}x ${product.frameName} - ${glassText} - ${colorText}${openingText} - ${product.width}x${product.height}cm - €${product.calculatedPrice.toFixed(2)}`;
+    }).join(' | ');
+
+    const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
+
+    hiddenProducts.value = productsString;
+    hiddenTotal.value = total.toFixed(2);
+
+    console.log('[Form] Injected products:', productsString);
+    console.log('[Form] Injected total:', total.toFixed(2));
+  });
+
   console.log('[Form] Created all form fields via JS');
 
   // Remove the outer Webflow container if it's now empty
