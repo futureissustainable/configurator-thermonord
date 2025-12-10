@@ -876,16 +876,16 @@ function submitEmail(event) {
 // ============================================
 
 function initWebflowForm() {
-  console.log('[Form] Looking for cart-form...');
+  console.log('[Form] Looking for cart-form-block...');
 
-  // Find the Webflow form by ID
-  const form = document.getElementById('cart-form');
-  if (!form) {
-    console.log('[Form] cart-form not found, retrying in 100ms...');
+  // Find the Webflow form block by ID
+  const formBlock = document.getElementById('cart-form-block');
+  if (!formBlock) {
+    console.log('[Form] cart-form-block not found, retrying in 100ms...');
     setTimeout(initWebflowForm, 100);
     return;
   }
-  console.log('[Form] Found cart-form:', form);
+  console.log('[Form] Found formBlock:', formBlock);
 
   // Find the cart container where we want to place the form
   const cartContainer = document.querySelector('#screen-cart .cart-container');
@@ -894,14 +894,6 @@ function initWebflowForm() {
     return;
   }
   console.log('[Form] Found cart-container:', cartContainer);
-
-  // Get the form's parent container (the w-form div)
-  const formBlock = form.closest('.w-form');
-  if (!formBlock) {
-    console.log('[Form] ERROR: .w-form parent not found!');
-    return;
-  }
-  console.log('[Form] Found formBlock:', formBlock);
 
   // Check if already moved
   if (formBlock.parentElement === cartContainer) {
