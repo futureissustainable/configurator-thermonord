@@ -938,28 +938,23 @@ function initWebflowForm() {
   const form = document.getElementById('cart-form');
   if (!form) return;
 
-  // Clear ALL Webflow fields - we'll create everything ourselves
-  const formWrapper = form.querySelector('.form-wrap, #cart-form-wrapper');
-  if (formWrapper) {
-    formWrapper.innerHTML = '';
+  // Find or create form wrapper
+  let formWrapper = form.querySelector('.form-wrap, #cart-form-wrapper');
+  if (!formWrapper) {
+    formWrapper = document.createElement('div');
+    formWrapper.className = 'cart-form-fields';
+    form.insertBefore(formWrapper, form.firstChild);
   } else {
-    // No wrapper, clear form directly but keep form attributes
-    while (form.firstChild) {
-      if (form.firstChild.classList && form.firstChild.classList.contains('w-form-done')) break;
-      form.removeChild(form.firstChild);
-    }
+    formWrapper.innerHTML = '';
+    formWrapper.className = 'cart-form-fields';
   }
 
-  // Create form container
-  const container = formWrapper || form;
-  container.className = 'cart-form-fields';
-
-  // Create all form fields via JS
+  // Create visible form fields via JS
   const fields = [
     { type: 'text', name: 'name', id: 'name', placeholder: 'Nume complet', required: true },
     { type: 'email', name: 'email', id: 'email', placeholder: 'Email', required: true },
     { type: 'tel', name: 'phone', id: 'phone', placeholder: 'Telefon', required: true },
-    { type: 'select', name: 'timeline', id: 'timeline', placeholder: 'Când aveți nevoie?', options: [
+    { type: 'select', name: 'timeline', id: 'timeline', options: [
       { value: '', label: 'Când aveți nevoie?', disabled: true, selected: true },
       { value: 'Urgent (< 2 săptămâni)', label: 'Urgent (< 2 săptămâni)' },
       { value: '1-2 luni', label: '1-2 luni' },
@@ -982,7 +977,7 @@ function initWebflowForm() {
         if (opt.selected) option.selected = true;
         select.appendChild(option);
       });
-      container.appendChild(select);
+      formWrapper.appendChild(select);
     } else {
       const input = document.createElement('input');
       input.type = field.type;
@@ -991,24 +986,9 @@ function initWebflowForm() {
       input.placeholder = field.placeholder;
       input.className = 'form-field';
       if (field.required) input.required = true;
-      container.appendChild(input);
+      formWrapper.appendChild(input);
     }
   });
-
-  // Hidden fields for cart data (use text with CSS hide - Webflow ignores type=hidden)
-  const hiddenProducts = document.createElement('input');
-  hiddenProducts.type = 'text';
-  hiddenProducts.name = 'products';
-  hiddenProducts.id = 'formProducts';
-  hiddenProducts.style.cssText = 'position:absolute;left:-9999px;height:0;opacity:0;';
-  container.appendChild(hiddenProducts);
-
-  const hiddenTotal = document.createElement('input');
-  hiddenTotal.type = 'text';
-  hiddenTotal.name = 'total';
-  hiddenTotal.id = 'formTotal';
-  hiddenTotal.style.cssText = 'position:absolute;left:-9999px;height:0;opacity:0;';
-  container.appendChild(hiddenTotal);
 
   // Create submit button
   const submitBtn = document.createElement('input');
@@ -1016,31 +996,35 @@ function initWebflowForm() {
   submitBtn.value = 'PRIMEȘTE OFERTA';
   submitBtn.id = 'btn-submit';
   submitBtn.className = 'form-submit';
-  container.appendChild(submitBtn);
+  formWrapper.appendChild(submitBtn);
 
-  // Add submit event listener to inject cart data right before submission
+  // Hidden fields (formProducts, formTotal) are added via Webflow Embed:
+  // <input type="hidden" id="formProducts" name="products" value="">
+  // <input type="hidden" id="formTotal" name="total" value="">
+
+  // Populate hidden fields on form submit
   form.addEventListener('submit', function(e) {
-    console.log('[Form] Submit triggered, injecting cart data...');
+    const formProducts = document.getElementById('formProducts');
+    const formTotal = document.getElementById('formTotal');
 
-    const productsString = state.cart.map((product) => {
-      const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
-      const openingText = product.opening ? ` - ${product.opening}` : '';
-      const colorText = product.color === 'Altă culoare' && product.customColor
-        ? product.customColor
-        : product.color;
-      return `${product.quantity}x ${product.frameName} - ${glassText} - ${colorText}${openingText} - ${product.width}x${product.height}cm - €${product.calculatedPrice.toFixed(2)}`;
-    }).join(' | ');
+    if (formProducts && formTotal) {
+      const productsString = state.cart.map((product) => {
+        const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
+        const openingText = product.opening ? ` - ${product.opening}` : '';
+        const colorText = product.color === 'Altă culoare' && product.customColor
+          ? product.customColor
+          : product.color;
+        return `${product.quantity}x ${product.frameName} - ${glassText} - ${colorText}${openingText} - ${product.width}x${product.height}cm - €${product.calculatedPrice.toFixed(2)}`;
+      }).join(' | ');
+      const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
 
-    const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
-
-    hiddenProducts.value = productsString;
-    hiddenTotal.value = total.toFixed(2);
-
-    console.log('[Form] Injected products:', productsString);
-    console.log('[Form] Injected total:', total.toFixed(2));
+      formProducts.value = productsString;
+      formTotal.value = total.toFixed(2);
+      console.log('[Form] Populated hidden fields:', productsString, total.toFixed(2));
+    }
   });
 
-  console.log('[Form] Created all form fields via JS');
+  console.log('[Form] Created form fields via JS');
 
   // Remove the outer Webflow container if it's now empty
   const outerContainer = document.querySelector('.w-layout-blockcontainer.w-container');
