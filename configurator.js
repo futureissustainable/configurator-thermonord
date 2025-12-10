@@ -909,17 +909,23 @@ function initWebflowForm() {
   cartContainer.appendChild(formBlock);
   console.log('[Form] SUCCESS: Moved form into cart-container!');
 
-  // Hide the formProducts and formTotal fields
+  // Hide the formProducts and formTotal fields and remove required
   const formProducts = document.getElementById('formProducts');
   const formTotal = document.getElementById('formTotal');
   if (formProducts) {
     formProducts.type = 'hidden';
     formProducts.style.display = 'none';
+    formProducts.required = false;
+    formProducts.removeAttribute('required');
+    formProducts.value = 'pending';
     console.log('[Form] Hidden formProducts');
   }
   if (formTotal) {
     formTotal.type = 'hidden';
     formTotal.style.display = 'none';
+    formTotal.required = false;
+    formTotal.removeAttribute('required');
+    formTotal.value = '0';
     console.log('[Form] Hidden formTotal');
   }
 
@@ -954,9 +960,12 @@ function initWebflowForm() {
     console.log('[Form] Updated submit button text');
   }
 
-  // Remove required from hidden fields
-  if (formProducts) formProducts.removeAttribute('required');
-  if (formTotal) formTotal.removeAttribute('required');
+  // Disable HTML5 validation on form (Webflow handles its own)
+  const form = document.getElementById('cart-form');
+  if (form) {
+    form.setAttribute('novalidate', 'true');
+    console.log('[Form] Disabled HTML5 validation');
+  }
 
   // Remove the outer Webflow container if it's now empty
   const outerContainer = document.querySelector('.w-layout-blockcontainer.w-container');
