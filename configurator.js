@@ -938,8 +938,67 @@ function initWebflowForm() {
   const form = document.getElementById('cart-form');
   if (!form) return;
 
-  // DON'T clear or create fields - use Webflow's native fields
-  // User adds hidden fields via Embed element in Webflow:
+  // Find or create form wrapper
+  let formWrapper = form.querySelector('.form-wrap, #cart-form-wrapper');
+  if (!formWrapper) {
+    formWrapper = document.createElement('div');
+    formWrapper.className = 'cart-form-fields';
+    form.insertBefore(formWrapper, form.firstChild);
+  } else {
+    formWrapper.innerHTML = '';
+    formWrapper.className = 'cart-form-fields';
+  }
+
+  // Create visible form fields via JS
+  const fields = [
+    { type: 'text', name: 'name', id: 'name', placeholder: 'Nume complet', required: true },
+    { type: 'email', name: 'email', id: 'email', placeholder: 'Email', required: true },
+    { type: 'tel', name: 'phone', id: 'phone', placeholder: 'Telefon', required: true },
+    { type: 'select', name: 'timeline', id: 'timeline', options: [
+      { value: '', label: 'Când aveți nevoie?', disabled: true, selected: true },
+      { value: 'Urgent (< 2 săptămâni)', label: 'Urgent (< 2 săptămâni)' },
+      { value: '1-2 luni', label: '1-2 luni' },
+      { value: '3-6 luni', label: '3-6 luni' },
+      { value: 'Doar explorez', label: 'Doar explorez' }
+    ]}
+  ];
+
+  fields.forEach(field => {
+    if (field.type === 'select') {
+      const select = document.createElement('select');
+      select.name = field.name;
+      select.id = field.id;
+      select.className = 'form-field form-select';
+      field.options.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.value;
+        option.textContent = opt.label;
+        if (opt.disabled) option.disabled = true;
+        if (opt.selected) option.selected = true;
+        select.appendChild(option);
+      });
+      formWrapper.appendChild(select);
+    } else {
+      const input = document.createElement('input');
+      input.type = field.type;
+      input.name = field.name;
+      input.id = field.id;
+      input.placeholder = field.placeholder;
+      input.className = 'form-field';
+      if (field.required) input.required = true;
+      formWrapper.appendChild(input);
+    }
+  });
+
+  // Create submit button
+  const submitBtn = document.createElement('input');
+  submitBtn.type = 'submit';
+  submitBtn.value = 'PRIMEȘTE OFERTA';
+  submitBtn.id = 'btn-submit';
+  submitBtn.className = 'form-submit';
+  formWrapper.appendChild(submitBtn);
+
+  // Hidden fields (formProducts, formTotal) are added via Webflow Embed:
   // <input type="hidden" id="formProducts" name="products" value="">
   // <input type="hidden" id="formTotal" name="total" value="">
 
@@ -963,10 +1022,9 @@ function initWebflowForm() {
       formTotal.value = total.toFixed(2);
       console.log('[Form] Populated hidden fields:', productsString, total.toFixed(2));
     }
-    // Let form submit normally to Webflow
   });
 
-  console.log('[Form] Form ready - using Webflow native fields');
+  console.log('[Form] Created form fields via JS');
 
   // Remove the outer Webflow container if it's now empty
   const outerContainer = document.querySelector('.w-layout-blockcontainer.w-container');
