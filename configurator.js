@@ -700,8 +700,24 @@ function renderCart() {
 
   const formProducts = document.getElementById('formProducts');
   const formTotal = document.getElementById('formTotal');
-  if (formProducts) formProducts.value = productsString;
-  if (formTotal) formTotal.value = total.toFixed(2);
+
+  console.log('[Cart] Products string:', productsString);
+  console.log('[Cart] Total:', total);
+  console.log('[Cart] formProducts element:', formProducts);
+  console.log('[Cart] formTotal element:', formTotal);
+
+  if (formProducts) {
+    formProducts.value = productsString;
+    console.log('[Cart] Set formProducts value');
+  } else {
+    console.log('[Cart] WARNING: formProducts not found!');
+  }
+  if (formTotal) {
+    formTotal.value = total.toFixed(2);
+    console.log('[Cart] Set formTotal value');
+  } else {
+    console.log('[Cart] WARNING: formTotal not found!');
+  }
 }
 
 function editProduct(index) {
