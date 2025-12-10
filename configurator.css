@@ -1624,6 +1624,15 @@ input[type="number"] { -moz-appearance: textfield; }
   display: none;
 }
 
+.cart-incentive.unlocked {
+  background: linear-gradient(135deg, rgba(212, 165, 116, 0.12) 0%, rgba(212, 165, 116, 0.05) 100%);
+  border-color: rgba(212, 165, 116, 0.3);
+}
+
+.cart-incentive.unlocked strong {
+  color: var(--premium-accent);
+}
+
 .cart-incentive strong {
   color: #6ee7a0;
 }
