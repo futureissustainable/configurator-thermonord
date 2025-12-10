@@ -1691,10 +1691,10 @@ input[type="number"] { -moz-appearance: textfield; }
   gap: 1rem;
 }
 
-#input-name,
-#input-email,
-#input-phone,
-#select-timeline {
+#name,
+#email,
+#phone,
+#timeline {
   width: 100%;
   padding: 1rem 1.25rem;
   border-radius: 1rem;
@@ -1708,14 +1708,14 @@ input[type="number"] { -moz-appearance: textfield; }
   transition: border-color 0.3s ease;
 }
 
-#input-name:focus,
-#input-email:focus,
-#input-phone:focus,
-#select-timeline:focus {
+#name:focus,
+#email:focus,
+#phone:focus,
+#timeline:focus {
   border-color: var(--text-secondary);
 }
 
-#select-timeline {
+#timeline {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
