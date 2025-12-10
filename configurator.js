@@ -923,6 +923,26 @@ function initWebflowForm() {
     console.log('[Form] Hidden formTotal');
   }
 
+  // Create custom timeline dropdown
+  const timelineField = document.getElementById('timeline');
+  if (timelineField) {
+    const customSelect = document.createElement('select');
+    customSelect.className = 'timeline-dropdown';
+    customSelect.innerHTML = `
+      <option value="" disabled selected>Când aveți nevoie?</option>
+      <option value="Urgent (< 2 săptămâni)">Urgent (< 2 săptămâni)</option>
+      <option value="1-2 luni">1-2 luni</option>
+      <option value="3-6 luni">3-6 luni</option>
+      <option value="Doar explorez">Doar explorez</option>
+    `;
+    customSelect.addEventListener('change', function() {
+      timelineField.value = this.value;
+      console.log('[Form] Timeline set to:', this.value);
+    });
+    timelineField.parentNode.insertBefore(customSelect, timelineField);
+    console.log('[Form] Created custom timeline dropdown');
+  }
+
   // Remove the outer Webflow container if it's now empty
   const outerContainer = document.querySelector('.w-layout-blockcontainer.w-container');
   if (outerContainer && outerContainer.children.length === 0) {
