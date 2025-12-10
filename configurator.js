@@ -1024,10 +1024,19 @@ function initWebflowForm() {
   submitBtn.className = 'form-submit';
   container.appendChild(submitBtn);
 
-  // Add submit event listener to inject cart data right before submission
+  // Intercept form submission and handle via fetch (Webflow ignores dynamic fields)
   form.addEventListener('submit', function(e) {
-    console.log('[Form] Submit triggered, injecting cart data...');
+    e.preventDefault();
+    e.stopPropagation();
+    console.log('[Form] Submit intercepted, sending via fetch...');
 
+    // Get form values
+    const nameVal = document.getElementById('name').value;
+    const emailVal = document.getElementById('email').value;
+    const phoneVal = document.getElementById('phone').value;
+    const timelineVal = document.getElementById('timeline').value;
+
+    // Get cart data
     const productsString = state.cart.map((product) => {
       const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
       const openingText = product.opening ? ` - ${product.opening}` : '';
@@ -1036,14 +1045,57 @@ function initWebflowForm() {
         : product.color;
       return `${product.quantity}x ${product.frameName} - ${glassText} - ${colorText}${openingText} - ${product.width}x${product.height}cm - €${product.calculatedPrice.toFixed(2)}`;
     }).join(' | ');
-
     const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
 
-    hiddenProducts.value = productsString;
-    hiddenTotal.value = total.toFixed(2);
+    // Build form data
+    const formData = new FormData();
+    formData.append('name', nameVal);
+    formData.append('email', emailVal);
+    formData.append('phone', phoneVal);
+    formData.append('timeline', timelineVal);
+    formData.append('products', productsString);
+    formData.append('total', total.toFixed(2));
 
-    console.log('[Form] Injected products:', productsString);
-    console.log('[Form] Injected total:', total.toFixed(2));
+    console.log('[Form] Sending data:', {
+      name: nameVal,
+      email: emailVal,
+      phone: phoneVal,
+      timeline: timelineVal,
+      products: productsString,
+      total: total.toFixed(2)
+    });
+
+    // Submit to Webflow
+    fetch(form.action, {
+      method: 'POST',
+      body: formData
+    })
+    .then(response => {
+      console.log('[Form] Response:', response);
+      if (response.ok) {
+        // Redirect to thank you page or show success
+        const redirect = form.getAttribute('data-redirect') || form.getAttribute('redirect');
+        if (redirect) {
+          window.location.href = redirect;
+        } else {
+          // Show success message
+          const successDiv = formBlock.querySelector('.w-form-done');
+          if (successDiv) {
+            form.style.display = 'none';
+            successDiv.style.display = 'block';
+          }
+        }
+      } else {
+        throw new Error('Form submission failed');
+      }
+    })
+    .catch(error => {
+      console.error('[Form] Error:', error);
+      const failDiv = formBlock.querySelector('.w-form-fail');
+      if (failDiv) {
+        failDiv.style.display = 'block';
+      }
+    });
   });
 
   console.log('[Form] Created all form fields via JS');
