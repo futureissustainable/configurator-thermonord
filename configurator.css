@@ -1607,6 +1607,31 @@ input[type="number"] { -moz-appearance: textfield; }
   color: var(--premium-accent);
 }
 
+.cart-incentive {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  background: linear-gradient(135deg, rgba(74, 222, 128, 0.08) 0%, rgba(74, 222, 128, 0.03) 100%);
+  border: 1px solid rgba(74, 222, 128, 0.2);
+  border-radius: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.cart-incentive.hidden {
+  display: none;
+}
+
+.cart-incentive strong {
+  color: #6ee7a0;
+}
+
+.incentive-icon {
+  font-size: 1.1rem;
+}
+
 .cart-actions {
   display: flex;
   gap: 1rem;
