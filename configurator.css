@@ -1686,17 +1686,15 @@ input[type="number"] { -moz-appearance: textfield; }
   margin-bottom: 2rem;
 }
 
-/* Cart Form Styles (Webflow) */
-#cart-form-wrapper {
+/* Cart Form Styles */
+.cart-form-fields {
   margin-top: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-#name,
-#email,
-#phone {
+.form-field {
   width: 100%;
   padding: 1rem 1.25rem;
   border-radius: 1rem;
@@ -1708,32 +1706,19 @@ input[type="number"] { -moz-appearance: textfield; }
   font-size: 1rem;
   outline: none;
   transition: border-color 0.3s ease;
+  box-sizing: border-box;
 }
 
-#name:focus,
-#email:focus,
-#phone:focus {
+.form-field:focus {
   border-color: var(--text-secondary);
 }
 
-/* Hide original Webflow timeline field */
-#timeline {
-  display: none !important;
+.form-field::placeholder {
+  color: var(--text-muted);
 }
 
-/* Custom timeline dropdown */
-.timeline-dropdown {
-  width: 100%;
-  padding: 1rem 1.25rem;
-  border-radius: 1rem;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border);
-  color: var(--text-primary);
-  font-family: 'Geist', sans-serif;
-  font-weight: 200;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.3s ease;
+/* Select dropdown styling */
+.form-select {
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23888' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -1742,16 +1727,12 @@ input[type="number"] { -moz-appearance: textfield; }
   cursor: pointer;
 }
 
-.timeline-dropdown:focus {
-  border-color: var(--text-secondary);
-}
-
-.timeline-dropdown option {
+.form-select option {
   background: var(--bg-deep);
   color: var(--text-primary);
 }
 
-#btn-submit {
+.form-submit {
   width: 100%;
   margin-top: 0.5rem;
   padding: 1.25rem 2rem;
@@ -1767,9 +1748,10 @@ input[type="number"] { -moz-appearance: textfield; }
   letter-spacing: 0.05em;
   text-align: center;
   display: block;
+  box-sizing: border-box;
 }
 
-#btn-submit:hover {
+.form-submit:hover {
   transform: scale(1.02);
   box-shadow: 0 10px 40px rgba(255,255,255,0.1);
 }
@@ -1793,12 +1775,6 @@ input[type="number"] { -moz-appearance: textfield; }
 /* Hide Webflow success/error messages */
 .w-form-done,
 .w-form-fail {
-  display: none !important;
-}
-
-/* Hide formProducts and formTotal fields */
-#formProducts,
-#formTotal {
   display: none !important;
 }
 
