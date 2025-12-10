@@ -895,6 +895,9 @@ function initWebflowForm() {
   // Check if already moved
   if (formBlock.parentElement === cartContainer) return;
 
+  // Add class to form block for styling
+  formBlock.classList.add('cart-form-block');
+
   // Move the entire form block into the cart screen
   cartContainer.appendChild(formBlock);
 

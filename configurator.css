@@ -1751,6 +1751,10 @@ input[type="number"] { -moz-appearance: textfield; }
   padding: 0;
 }
 
+.cart-form-block {
+  margin-top: 2rem;
+}
+
 .w-input,
 .w-button {
   all: unset;
