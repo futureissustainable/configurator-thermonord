@@ -872,6 +872,45 @@ function submitEmail(event) {
 }
 
 // ============================================
+// Webflow Form Integration
+// ============================================
+
+function initWebflowForm() {
+  // Find the Webflow form by ID
+  const form = document.getElementById('cart-form');
+  if (!form) return;
+
+  // Find the cart content area where we want to place the form
+  const cartContent = document.querySelector('#screen-cart .cart-content');
+  if (!cartContent) return;
+
+  // Get the form's parent container (the w-form div)
+  const formBlock = form.closest('.w-form');
+  if (!formBlock) return;
+
+  // Move the entire form block into the cart screen
+  cartContent.appendChild(formBlock);
+
+  // Hide the formProducts and formTotal fields
+  const formProducts = document.getElementById('formProducts');
+  const formTotal = document.getElementById('formTotal');
+  if (formProducts) {
+    formProducts.type = 'hidden';
+    formProducts.style.display = 'none';
+  }
+  if (formTotal) {
+    formTotal.type = 'hidden';
+    formTotal.style.display = 'none';
+  }
+
+  // Remove the outer Webflow container if it's now empty
+  const outerContainer = document.querySelector('.w-layout-blockcontainer.w-container');
+  if (outerContainer && outerContainer.children.length === 0) {
+    outerContainer.remove();
+  }
+}
+
+// ============================================
 // Initialization
 // ============================================
 
@@ -882,6 +921,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Render frame grid on initial load (now the first screen)
   renderFrameGrid();
+
+  // Initialize Webflow form integration
+  initWebflowForm();
 
   // Handle window resize for canvas
   window.addEventListener('resize', () => {
