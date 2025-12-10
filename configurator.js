@@ -675,7 +675,7 @@ function renderCart() {
   // Show/hide incentive message based on total
   const incentiveEl = document.getElementById('cartIncentive');
   if (incentiveEl) {
-    if (total > 0 && total < 10000) {
+    if (total > 0 && total < 5000) {
       incentiveEl.classList.remove('hidden');
     } else {
       incentiveEl.classList.add('hidden');
