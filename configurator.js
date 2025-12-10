@@ -909,26 +909,85 @@ function initWebflowForm() {
   const form = document.getElementById('cart-form');
   if (!form) return;
 
-  // Create hidden inputs for cart data (JS-only, not in Webflow)
+  // Clear ALL Webflow fields - we'll create everything ourselves
+  const formWrapper = form.querySelector('.form-wrap, #cart-form-wrapper');
+  if (formWrapper) {
+    formWrapper.innerHTML = '';
+  } else {
+    // No wrapper, clear form directly but keep form attributes
+    while (form.firstChild) {
+      if (form.firstChild.classList && form.firstChild.classList.contains('w-form-done')) break;
+      form.removeChild(form.firstChild);
+    }
+  }
+
+  // Create form container
+  const container = formWrapper || form;
+  container.className = 'cart-form-fields';
+
+  // Create all form fields via JS
+  const fields = [
+    { type: 'text', name: 'name', id: 'name', placeholder: 'Nume complet', required: true },
+    { type: 'email', name: 'email', id: 'email', placeholder: 'Email', required: true },
+    { type: 'tel', name: 'phone', id: 'phone', placeholder: 'Telefon', required: true },
+    { type: 'select', name: 'timeline', id: 'timeline', placeholder: 'Când aveți nevoie?', options: [
+      { value: '', label: 'Când aveți nevoie?', disabled: true, selected: true },
+      { value: 'Urgent (< 2 săptămâni)', label: 'Urgent (< 2 săptămâni)' },
+      { value: '1-2 luni', label: '1-2 luni' },
+      { value: '3-6 luni', label: '3-6 luni' },
+      { value: 'Doar explorez', label: 'Doar explorez' }
+    ]}
+  ];
+
+  fields.forEach(field => {
+    if (field.type === 'select') {
+      const select = document.createElement('select');
+      select.name = field.name;
+      select.id = field.id;
+      select.className = 'form-field form-select';
+      field.options.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt.value;
+        option.textContent = opt.label;
+        if (opt.disabled) option.disabled = true;
+        if (opt.selected) option.selected = true;
+        select.appendChild(option);
+      });
+      container.appendChild(select);
+    } else {
+      const input = document.createElement('input');
+      input.type = field.type;
+      input.name = field.name;
+      input.id = field.id;
+      input.placeholder = field.placeholder;
+      input.className = 'form-field';
+      if (field.required) input.required = true;
+      container.appendChild(input);
+    }
+  });
+
+  // Hidden fields for cart data
   const hiddenProducts = document.createElement('input');
   hiddenProducts.type = 'hidden';
   hiddenProducts.name = 'products';
   hiddenProducts.id = 'formProducts';
-  form.appendChild(hiddenProducts);
+  container.appendChild(hiddenProducts);
 
   const hiddenTotal = document.createElement('input');
   hiddenTotal.type = 'hidden';
   hiddenTotal.name = 'total';
   hiddenTotal.id = 'formTotal';
-  form.appendChild(hiddenTotal);
-  console.log('[Form] Created hidden inputs for cart data');
+  container.appendChild(hiddenTotal);
 
-  // Fix submit button
-  const submitBtn = document.getElementById('btn-submit');
-  if (submitBtn) {
-    submitBtn.value = 'PRIMEȘTE OFERTA';
-    console.log('[Form] Updated submit button text');
-  }
+  // Create submit button
+  const submitBtn = document.createElement('input');
+  submitBtn.type = 'submit';
+  submitBtn.value = 'PRIMEȘTE OFERTA';
+  submitBtn.id = 'btn-submit';
+  submitBtn.className = 'form-submit';
+  container.appendChild(submitBtn);
+
+  console.log('[Form] Created all form fields via JS');
 
   // Remove the outer Webflow container if it's now empty
   const outerContainer = document.querySelector('.w-layout-blockcontainer.w-container');
