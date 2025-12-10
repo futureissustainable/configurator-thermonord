@@ -1716,13 +1716,8 @@ input[type="number"] { -moz-appearance: textfield; }
   border-color: var(--text-secondary);
 }
 
-/* Hide original Webflow timeline field */
+/* Timeline select styling */
 #timeline {
-  display: none !important;
-}
-
-/* Custom timeline dropdown */
-.timeline-dropdown {
   width: 100%;
   padding: 1rem 1.25rem;
   border-radius: 1rem;
@@ -1742,11 +1737,11 @@ input[type="number"] { -moz-appearance: textfield; }
   cursor: pointer;
 }
 
-.timeline-dropdown:focus {
+#timeline:focus {
   border-color: var(--text-secondary);
 }
 
-.timeline-dropdown option {
+#timeline option {
   background: var(--bg-deep);
   color: var(--text-primary);
 }
@@ -1793,12 +1788,6 @@ input[type="number"] { -moz-appearance: textfield; }
 /* Hide Webflow success/error messages */
 .w-form-done,
 .w-form-fail {
-  display: none !important;
-}
-
-/* Hide formProducts and formTotal fields */
-#formProducts,
-#formTotal {
   display: none !important;
 }
 

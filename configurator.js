@@ -901,70 +901,33 @@ function initWebflowForm() {
     return;
   }
 
-  // Add class to form block for styling
-  formBlock.classList.add('cart-form-block');
-  console.log('[Form] Added cart-form-block class');
-
   // Move the entire form block into the cart screen
   cartContainer.appendChild(formBlock);
   console.log('[Form] SUCCESS: Moved form into cart-container!');
 
-  // Hide the formProducts and formTotal fields and remove required
-  const formProducts = document.getElementById('formProducts');
-  const formTotal = document.getElementById('formTotal');
-  if (formProducts) {
-    formProducts.type = 'hidden';
-    formProducts.style.display = 'none';
-    formProducts.required = false;
-    formProducts.removeAttribute('required');
-    formProducts.value = 'pending';
-    console.log('[Form] Hidden formProducts');
-  }
-  if (formTotal) {
-    formTotal.type = 'hidden';
-    formTotal.style.display = 'none';
-    formTotal.required = false;
-    formTotal.removeAttribute('required');
-    formTotal.value = '0';
-    console.log('[Form] Hidden formTotal');
-  }
+  // Get the form element
+  const form = document.getElementById('cart-form');
+  if (!form) return;
 
-  // Create custom timeline dropdown
-  const timelineField = document.getElementById('timeline');
-  if (timelineField) {
-    // Remove required from original field
-    timelineField.removeAttribute('required');
+  // Create hidden inputs for cart data (JS-only, not in Webflow)
+  const hiddenProducts = document.createElement('input');
+  hiddenProducts.type = 'hidden';
+  hiddenProducts.name = 'products';
+  hiddenProducts.id = 'formProducts';
+  form.appendChild(hiddenProducts);
 
-    const customSelect = document.createElement('select');
-    customSelect.className = 'timeline-dropdown';
-    customSelect.innerHTML = `
-      <option value="" disabled selected>Când aveți nevoie?</option>
-      <option value="Urgent (< 2 săptămâni)">Urgent (< 2 săptămâni)</option>
-      <option value="1-2 luni">1-2 luni</option>
-      <option value="3-6 luni">3-6 luni</option>
-      <option value="Doar explorez">Doar explorez</option>
-    `;
-    customSelect.addEventListener('change', function() {
-      timelineField.value = this.value;
-      console.log('[Form] Timeline set to:', this.value);
-    });
-    timelineField.parentNode.insertBefore(customSelect, timelineField);
-    console.log('[Form] Created custom timeline dropdown');
-  }
+  const hiddenTotal = document.createElement('input');
+  hiddenTotal.type = 'hidden';
+  hiddenTotal.name = 'total';
+  hiddenTotal.id = 'formTotal';
+  form.appendChild(hiddenTotal);
+  console.log('[Form] Created hidden inputs for cart data');
 
   // Fix submit button
   const submitBtn = document.getElementById('btn-submit');
   if (submitBtn) {
     submitBtn.value = 'PRIMEȘTE OFERTA';
-    submitBtn.style.textAlign = 'center';
     console.log('[Form] Updated submit button text');
-  }
-
-  // Disable HTML5 validation on form (Webflow handles its own)
-  const form = document.getElementById('cart-form');
-  if (form) {
-    form.setAttribute('novalidate', 'true');
-    console.log('[Form] Disabled HTML5 validation');
   }
 
   // Remove the outer Webflow container if it's now empty
