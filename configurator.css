@@ -1745,6 +1745,30 @@ input[type="number"] { -moz-appearance: textfield; }
   box-shadow: 0 10px 40px rgba(255,255,255,0.1);
 }
 
+/* Reset Webflow default styles */
+.w-form {
+  margin: 0;
+  padding: 0;
+}
+
+.w-input,
+.w-button {
+  all: unset;
+  box-sizing: border-box;
+}
+
+/* Hide Webflow success/error messages */
+.w-form-done,
+.w-form-fail {
+  display: none !important;
+}
+
+/* Hide formProducts and formTotal fields */
+#formProducts,
+#formTotal {
+  display: none !important;
+}
+
 .cart-actions .cta-btn {
   flex: 1;
   margin-top: 0;
