@@ -973,6 +973,7 @@ function initWebflowForm() {
       const select = document.createElement('select');
       select.name = field.name;
       select.id = field.id;
+      select.setAttribute('data-name', field.name);
       select.className = 'form-field form-select';
       field.options.forEach(opt => {
         const option = document.createElement('option');
@@ -988,6 +989,7 @@ function initWebflowForm() {
       input.type = field.type;
       input.name = field.name;
       input.id = field.id;
+      input.setAttribute('data-name', field.name);
       input.placeholder = field.placeholder;
       input.className = 'form-field';
       if (field.required) input.required = true;
@@ -995,19 +997,23 @@ function initWebflowForm() {
     }
   });
 
-  // Hidden fields for cart data (use text with CSS hide - Webflow ignores type=hidden)
+  // Hidden fields for cart data - visible but tiny (Webflow needs to "see" them)
   const hiddenProducts = document.createElement('input');
   hiddenProducts.type = 'text';
   hiddenProducts.name = 'products';
   hiddenProducts.id = 'formProducts';
-  hiddenProducts.style.cssText = 'position:absolute;left:-9999px;height:0;opacity:0;';
+  hiddenProducts.setAttribute('data-name', 'products');
+  hiddenProducts.className = 'form-field';
+  hiddenProducts.style.cssText = 'height:1px;padding:0;margin:0;border:0;opacity:0.01;position:absolute;';
   container.appendChild(hiddenProducts);
 
   const hiddenTotal = document.createElement('input');
   hiddenTotal.type = 'text';
   hiddenTotal.name = 'total';
   hiddenTotal.id = 'formTotal';
-  hiddenTotal.style.cssText = 'position:absolute;left:-9999px;height:0;opacity:0;';
+  hiddenTotal.setAttribute('data-name', 'total');
+  hiddenTotal.className = 'form-field';
+  hiddenTotal.style.cssText = 'height:1px;padding:0;margin:0;border:0;opacity:0.01;position:absolute;';
   container.appendChild(hiddenTotal);
 
   // Create submit button
