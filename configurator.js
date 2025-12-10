@@ -926,6 +926,9 @@ function initWebflowForm() {
   // Create custom timeline dropdown
   const timelineField = document.getElementById('timeline');
   if (timelineField) {
+    // Remove required from original field
+    timelineField.removeAttribute('required');
+
     const customSelect = document.createElement('select');
     customSelect.className = 'timeline-dropdown';
     customSelect.innerHTML = `
@@ -942,6 +945,18 @@ function initWebflowForm() {
     timelineField.parentNode.insertBefore(customSelect, timelineField);
     console.log('[Form] Created custom timeline dropdown');
   }
+
+  // Fix submit button
+  const submitBtn = document.getElementById('btn-submit');
+  if (submitBtn) {
+    submitBtn.value = 'PRIMEȘTE OFERTA';
+    submitBtn.style.textAlign = 'center';
+    console.log('[Form] Updated submit button text');
+  }
+
+  // Remove required from hidden fields
+  if (formProducts) formProducts.removeAttribute('required');
+  if (formTotal) formTotal.removeAttribute('required');
 
   // Remove the outer Webflow container if it's now empty
   const outerContainer = document.querySelector('.w-layout-blockcontainer.w-container');

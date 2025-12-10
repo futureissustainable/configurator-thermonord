@@ -1765,6 +1765,8 @@ input[type="number"] { -moz-appearance: textfield; }
   cursor: pointer;
   transition: all 0.3s ease;
   letter-spacing: 0.05em;
+  text-align: center;
+  display: block;
 }
 
 #btn-submit:hover {
