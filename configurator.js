@@ -876,20 +876,46 @@ function submitEmail(event) {
 // ============================================
 
 function initWebflowForm() {
+  console.log('[Form] Looking for cart-form...');
+
   // Find the Webflow form by ID
   const form = document.getElementById('cart-form');
-  if (!form) return;
+  if (!form) {
+    console.log('[Form] cart-form not found, retrying in 100ms...');
+    setTimeout(initWebflowForm, 100);
+    return;
+  }
+  console.log('[Form] Found cart-form:', form);
 
-  // Find the cart content area where we want to place the form
-  const cartContent = document.querySelector('#screen-cart .cart-content');
-  if (!cartContent) return;
+  // Find the cart container where we want to place the form
+  const cartContainer = document.querySelector('#screen-cart .cart-container');
+  if (!cartContainer) {
+    console.log('[Form] ERROR: #screen-cart .cart-container not found!');
+    return;
+  }
+  console.log('[Form] Found cart-container:', cartContainer);
 
   // Get the form's parent container (the w-form div)
   const formBlock = form.closest('.w-form');
-  if (!formBlock) return;
+  if (!formBlock) {
+    console.log('[Form] ERROR: .w-form parent not found!');
+    return;
+  }
+  console.log('[Form] Found formBlock:', formBlock);
+
+  // Check if already moved
+  if (formBlock.parentElement === cartContainer) {
+    console.log('[Form] Already moved, skipping.');
+    return;
+  }
+
+  // Add class to form block for styling
+  formBlock.classList.add('cart-form-block');
+  console.log('[Form] Added cart-form-block class');
 
   // Move the entire form block into the cart screen
-  cartContent.appendChild(formBlock);
+  cartContainer.appendChild(formBlock);
+  console.log('[Form] SUCCESS: Moved form into cart-container!');
 
   // Hide the formProducts and formTotal fields
   const formProducts = document.getElementById('formProducts');
@@ -897,16 +923,19 @@ function initWebflowForm() {
   if (formProducts) {
     formProducts.type = 'hidden';
     formProducts.style.display = 'none';
+    console.log('[Form] Hidden formProducts');
   }
   if (formTotal) {
     formTotal.type = 'hidden';
     formTotal.style.display = 'none';
+    console.log('[Form] Hidden formTotal');
   }
 
   // Remove the outer Webflow container if it's now empty
   const outerContainer = document.querySelector('.w-layout-blockcontainer.w-container');
   if (outerContainer && outerContainer.children.length === 0) {
     outerContainer.remove();
+    console.log('[Form] Removed empty outer container');
   }
 }
 
