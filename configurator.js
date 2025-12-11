@@ -938,6 +938,10 @@ function initWebflowForm() {
   const form = document.getElementById('cart-form');
   if (!form) return;
 
+  // Save hidden inputs (added via Webflow Embed) before clearing
+  const hiddenInputs = form.querySelectorAll('input[type="hidden"]');
+  const savedHiddenInputs = Array.from(hiddenInputs);
+
   // Find or create form wrapper
   let formWrapper = form.querySelector('.form-wrap, #cart-form-wrapper');
   if (!formWrapper) {
@@ -948,6 +952,11 @@ function initWebflowForm() {
     formWrapper.innerHTML = '';
     formWrapper.className = 'cart-form-fields';
   }
+
+  // Restore hidden inputs
+  savedHiddenInputs.forEach(input => {
+    form.appendChild(input);
+  });
 
   // Create visible form fields via JS
   const fields = [
