@@ -706,12 +706,11 @@ function populateFormFields(productsString, total) {
   let formProducts = document.getElementById('formProducts');
   let formTotal = document.getElementById('formTotal');
 
-  // If fields don't exist, try to initialize form and retry
+  // If fields don't exist yet, they will be created inside the form by initWebflowForm()
+  // The form submit handler will also populate them, but we try here for immediate feedback
   if (!formProducts || !formTotal) {
-    console.log('[Cart] Form fields not found, initializing form...');
-    initWebflowForm();
-
-    // Check again after a short delay (form might need time to initialize)
+    console.log('[Cart] Hidden form fields not found yet (will be created inside form)');
+    // Try again after a delay - initWebflowForm runs on page load and creates the fields
     setTimeout(() => {
       formProducts = document.getElementById('formProducts');
       formTotal = document.getElementById('formTotal');
@@ -724,7 +723,7 @@ function populateFormFields(productsString, total) {
         formTotal.value = total.toFixed(2);
         console.log('[Cart] Set formTotal (delayed):', total.toFixed(2));
       }
-    }, 200);
+    }, 500);
     return;
   }
 
@@ -1007,9 +1006,46 @@ function initWebflowForm() {
   submitBtn.className = 'form-submit';
   formWrapper.appendChild(submitBtn);
 
-  // Hidden fields (formProducts, formTotal) are added via Webflow Embed:
-  // <input type="hidden" id="formProducts" name="products" value="">
-  // <input type="hidden" id="formTotal" name="total" value="">
+  // Create hidden fields INSIDE the form (critical for Webflow submission)
+  let formProducts = document.getElementById('formProducts');
+  let formTotal = document.getElementById('formTotal');
+
+  if (!formProducts) {
+    formProducts = document.createElement('input');
+    formProducts.type = 'hidden';
+    formProducts.id = 'formProducts';
+    formProducts.name = 'products';
+    formProducts.value = '';
+    form.appendChild(formProducts);
+    console.log('[Form] Created formProducts hidden input inside form');
+  }
+
+  if (!formTotal) {
+    formTotal = document.createElement('input');
+    formTotal.type = 'hidden';
+    formTotal.id = 'formTotal';
+    formTotal.name = 'total';
+    formTotal.value = '';
+    form.appendChild(formTotal);
+    console.log('[Form] Created formTotal hidden input inside form');
+  }
+
+  // Immediately populate hidden fields with current cart data
+  if (state.cart && state.cart.length > 0) {
+    const productsString = state.cart.map((product) => {
+      const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
+      const openingText = product.opening ? ` - ${product.opening}` : '';
+      const colorText = product.color === 'Altă culoare' && product.customColor
+        ? product.customColor
+        : product.color;
+      return `${product.quantity}x ${product.frameName} - ${glassText} - ${colorText}${openingText} - ${product.width}x${product.height}cm - €${product.calculatedPrice.toFixed(2)}`;
+    }).join(' | ');
+    const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
+
+    formProducts.value = productsString;
+    formTotal.value = total.toFixed(2);
+    console.log('[Form] Populated hidden fields on init:', productsString, total.toFixed(2));
+  }
 
   // Populate hidden fields on form submit
   form.addEventListener('submit', function(e) {
