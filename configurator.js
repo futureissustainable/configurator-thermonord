@@ -418,8 +418,13 @@ function renderPreview() {
   ctx.lineCap = 'square';
   ctx.lineJoin = 'miter';
 
-  const inputW = state.currentProduct.width || 100;
-  const inputH = state.currentProduct.height || 200;
+  // Use standard size (100x200) if dimensions are under 20x20
+  let inputW = state.currentProduct.width || 100;
+  let inputH = state.currentProduct.height || 200;
+  if (inputW < 20 || inputH < 20) {
+    inputW = 100;
+    inputH = 200;
+  }
   const padding = 40;
 
   let drawW, drawH;
