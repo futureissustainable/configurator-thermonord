@@ -419,7 +419,7 @@ function renderPreview() {
   ctx.lineJoin = 'miter';
 
   const inputW = state.currentProduct.width || 100;
-  const inputH = state.currentProduct.height || 100;
+  const inputH = state.currentProduct.height || 200;
   const padding = 40;
 
   let drawW, drawH;
@@ -439,8 +439,9 @@ function renderPreview() {
   const startX = (w - drawW) / 2;
   const startY = (h - drawH) / 2;
 
-  // Frame thickness: 10cm for fixed windows, 20cm for all other types
-  const frameThickCm = (state.frameType?.id === 'fixed') ? 10 : 20;
+  // Frame thickness: 6cm for fixed windows, 12cm (2x6cm layers) for others
+  const isFixed = state.frameType?.id === 'fixed';
+  const frameThickCm = isFixed ? 6 : 12;
   const scale = drawW / inputW; // pixels per cm
   const frameThick = frameThickCm * scale;
   const innerX = startX + frameThick;
@@ -451,6 +452,14 @@ function renderPreview() {
   // Draw frame
   ctx.fillStyle = frameFillColor;
   ctx.fillRect(startX, startY, drawW, drawH);
+
+  // Draw seam for non-fixed windows (middle line at 6cm representing the joint between two 6cm layers)
+  if (!isFixed) {
+    const seamOffset = 6 * scale; // 6cm from outer edge
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+    ctx.strokeRect(startX + seamOffset, startY + seamOffset, drawW - (seamOffset * 2), drawH - (seamOffset * 2));
+    ctx.strokeStyle = mainColor;
+  }
 
   // Draw glass (if has glass)
   if (state.hasGlass) {
