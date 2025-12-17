@@ -439,7 +439,10 @@ function renderPreview() {
   const startX = (w - drawW) / 2;
   const startY = (h - drawH) / 2;
 
-  const frameThick = Math.min(drawW, drawH) * 0.06;
+  // Frame thickness: 10cm for fixed windows, 20cm for all other types
+  const frameThickCm = (state.frameType?.id === 'fixed') ? 10 : 20;
+  const scale = drawW / inputW; // pixels per cm
+  const frameThick = frameThickCm * scale;
   const innerX = startX + frameThick;
   const innerY = startY + frameThick;
   const innerW = drawW - (frameThick * 2);
