@@ -439,9 +439,10 @@ function renderPreview() {
   const startX = (w - drawW) / 2;
   const startY = (h - drawH) / 2;
 
-  // Frame thickness: 6cm for fixed windows, 12cm (2x6cm layers) for others
+  // Frame thickness: 6cm for fixed, 12cm for windows, 16cm for doors
   const isFixed = state.frameType?.id === 'fixed';
-  const frameThickCm = isFixed ? 6 : 12;
+  const isDoor = ['door_simple', 'slide'].includes(state.frameType?.id);
+  const frameThickCm = isFixed ? 6 : (isDoor ? 16 : 12);
   const scale = drawW / inputW; // pixels per cm
   const frameThick = frameThickCm * scale;
   const innerX = startX + frameThick;
@@ -453,9 +454,9 @@ function renderPreview() {
   ctx.fillStyle = frameFillColor;
   ctx.fillRect(startX, startY, drawW, drawH);
 
-  // Draw seam for non-fixed windows (middle line at 6cm representing the joint between two 6cm layers)
+  // Draw seam for non-fixed (middle line representing the joint between two layers)
   if (!isFixed) {
-    const seamOffset = 6 * scale; // 6cm from outer edge
+    const seamOffset = (isDoor ? 8 : 6) * scale; // 8cm for doors, 6cm for windows
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
     ctx.strokeRect(startX + seamOffset, startY + seamOffset, drawW - (seamOffset * 2), drawH - (seamOffset * 2));
     ctx.strokeStyle = mainColor;
@@ -491,10 +492,11 @@ function renderPreview() {
 
   // Draw opening indicators
   if (state.frameType?.hasOpening) {
-    ctx.beginPath();
     const isLeft = state.currentProduct.opening === 'Stânga';
 
-    if (['classic', 'door_simple', 'tilt_turn'].includes(typeId)) {
+    // Door opening indicator (triangular swing pattern)
+    if (typeId === 'door_simple') {
+      ctx.beginPath();
       if (isLeft) {
         ctx.moveTo(innerX, innerY);
         ctx.lineTo(innerX + innerW, innerY + (innerH / 2));
@@ -504,14 +506,60 @@ function renderPreview() {
         ctx.lineTo(innerX, innerY + (innerH / 2));
         ctx.lineTo(innerX + innerW, innerY + innerH);
       }
+      ctx.stroke();
     }
 
-    if (typeId === 'tilt_turn') {
-      ctx.moveTo(innerX, innerY + innerH);
-      ctx.lineTo(innerX + (innerW / 2), innerY);
-      ctx.lineTo(innerX + innerW, innerY + innerH);
+    // Window arrow indicators (classic, tilt_turn)
+    if (['classic', 'tilt_turn'].includes(typeId)) {
+      const arrowY = innerY + (innerH / 2);
+      const arrowLen = Math.min(innerW, innerH) * 0.25;
+      const arrowHeadSize = arrowLen * 0.4;
+      const centerX = innerX + (innerW / 2);
+
+      ctx.beginPath();
+      if (isLeft) {
+        // Arrow pointing left
+        ctx.moveTo(centerX + (arrowLen / 2), arrowY);
+        ctx.lineTo(centerX - (arrowLen / 2), arrowY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX - (arrowLen / 2), arrowY);
+        ctx.lineTo(centerX - (arrowLen / 2) + arrowHeadSize, arrowY - (arrowHeadSize / 2));
+        ctx.lineTo(centerX - (arrowLen / 2) + arrowHeadSize, arrowY + (arrowHeadSize / 2));
+        ctx.closePath();
+        ctx.fillStyle = mainColor;
+        ctx.fill();
+      } else {
+        // Arrow pointing right
+        ctx.moveTo(centerX - (arrowLen / 2), arrowY);
+        ctx.lineTo(centerX + (arrowLen / 2), arrowY);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(centerX + (arrowLen / 2), arrowY);
+        ctx.lineTo(centerX + (arrowLen / 2) - arrowHeadSize, arrowY - (arrowHeadSize / 2));
+        ctx.lineTo(centerX + (arrowLen / 2) - arrowHeadSize, arrowY + (arrowHeadSize / 2));
+        ctx.closePath();
+        ctx.fillStyle = mainColor;
+        ctx.fill();
+      }
+
+      // Additional upward arrow for tilt_turn (ventilation)
+      if (typeId === 'tilt_turn') {
+        const arrowX = centerX;
+        const topArrowLen = arrowLen * 0.7;
+        ctx.beginPath();
+        ctx.moveTo(arrowX, innerY + (innerH * 0.6));
+        ctx.lineTo(arrowX, innerY + (innerH * 0.6) - topArrowLen);
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(arrowX, innerY + (innerH * 0.6) - topArrowLen);
+        ctx.lineTo(arrowX - (arrowHeadSize / 2), innerY + (innerH * 0.6) - topArrowLen + arrowHeadSize);
+        ctx.lineTo(arrowX + (arrowHeadSize / 2), innerY + (innerH * 0.6) - topArrowLen + arrowHeadSize);
+        ctx.closePath();
+        ctx.fillStyle = mainColor;
+        ctx.fill();
+      }
     }
-    ctx.stroke();
 
     // Sliding door arrows
     if (typeId === 'slide') {
