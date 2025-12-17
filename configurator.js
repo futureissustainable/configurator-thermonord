@@ -492,11 +492,10 @@ function renderPreview() {
 
   // Draw opening indicators
   if (state.frameType?.hasOpening) {
+    ctx.beginPath();
     const isLeft = state.currentProduct.opening === 'Stânga';
 
-    // Door opening indicator (triangular swing pattern)
-    if (typeId === 'door_simple') {
-      ctx.beginPath();
+    if (['classic', 'door_simple', 'tilt_turn'].includes(typeId)) {
       if (isLeft) {
         ctx.moveTo(innerX, innerY);
         ctx.lineTo(innerX + innerW, innerY + (innerH / 2));
@@ -506,60 +505,14 @@ function renderPreview() {
         ctx.lineTo(innerX, innerY + (innerH / 2));
         ctx.lineTo(innerX + innerW, innerY + innerH);
       }
-      ctx.stroke();
     }
 
-    // Window arrow indicators (classic, tilt_turn)
-    if (['classic', 'tilt_turn'].includes(typeId)) {
-      const arrowY = innerY + (innerH / 2);
-      const arrowLen = Math.min(innerW, innerH) * 0.25;
-      const arrowHeadSize = arrowLen * 0.4;
-      const centerX = innerX + (innerW / 2);
-
-      ctx.beginPath();
-      if (isLeft) {
-        // Arrow pointing left
-        ctx.moveTo(centerX + (arrowLen / 2), arrowY);
-        ctx.lineTo(centerX - (arrowLen / 2), arrowY);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(centerX - (arrowLen / 2), arrowY);
-        ctx.lineTo(centerX - (arrowLen / 2) + arrowHeadSize, arrowY - (arrowHeadSize / 2));
-        ctx.lineTo(centerX - (arrowLen / 2) + arrowHeadSize, arrowY + (arrowHeadSize / 2));
-        ctx.closePath();
-        ctx.fillStyle = mainColor;
-        ctx.fill();
-      } else {
-        // Arrow pointing right
-        ctx.moveTo(centerX - (arrowLen / 2), arrowY);
-        ctx.lineTo(centerX + (arrowLen / 2), arrowY);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(centerX + (arrowLen / 2), arrowY);
-        ctx.lineTo(centerX + (arrowLen / 2) - arrowHeadSize, arrowY - (arrowHeadSize / 2));
-        ctx.lineTo(centerX + (arrowLen / 2) - arrowHeadSize, arrowY + (arrowHeadSize / 2));
-        ctx.closePath();
-        ctx.fillStyle = mainColor;
-        ctx.fill();
-      }
-
-      // Additional upward arrow for tilt_turn (ventilation)
-      if (typeId === 'tilt_turn') {
-        const arrowX = centerX;
-        const topArrowLen = arrowLen * 0.7;
-        ctx.beginPath();
-        ctx.moveTo(arrowX, innerY + (innerH * 0.6));
-        ctx.lineTo(arrowX, innerY + (innerH * 0.6) - topArrowLen);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(arrowX, innerY + (innerH * 0.6) - topArrowLen);
-        ctx.lineTo(arrowX - (arrowHeadSize / 2), innerY + (innerH * 0.6) - topArrowLen + arrowHeadSize);
-        ctx.lineTo(arrowX + (arrowHeadSize / 2), innerY + (innerH * 0.6) - topArrowLen + arrowHeadSize);
-        ctx.closePath();
-        ctx.fillStyle = mainColor;
-        ctx.fill();
-      }
+    if (typeId === 'tilt_turn') {
+      ctx.moveTo(innerX, innerY + innerH);
+      ctx.lineTo(innerX + (innerW / 2), innerY);
+      ctx.lineTo(innerX + innerW, innerY + innerH);
     }
+    ctx.stroke();
 
     // Sliding door arrows
     if (typeId === 'slide') {
@@ -604,10 +557,9 @@ function renderPreview() {
       }
     }
 
-    // Draw handle
-    ctx.fillStyle = handleColor;
-
+    // Draw handle for sliding doors only
     if (typeId === 'slide') {
+      ctx.fillStyle = handleColor;
       const handleH = innerH * 0.4;
       const handleW = Math.max(4, innerW * 0.015);
       const handleY = innerY + (innerH / 2) - (handleH / 2);
@@ -621,21 +573,6 @@ function renderPreview() {
 
       ctx.beginPath();
       ctx.roundRect(handleX, handleY, handleW, handleH, handleW);
-      ctx.fill();
-    } else {
-      const handleH = Math.max(20, innerH * 0.15);
-      const handleW = handleH / 4;
-      const handleY = innerY + (innerH / 2) - (handleH / 2);
-      let handleX;
-
-      if (isLeft) {
-        handleX = innerX + innerW - (handleW * 1.5);
-      } else {
-        handleX = innerX + (handleW * 0.5);
-      }
-
-      ctx.beginPath();
-      ctx.roundRect(handleX, handleY, handleW, handleH, handleW / 2);
       ctx.fill();
     }
   }
