@@ -691,7 +691,12 @@ function renderCart() {
   }
 
   // Populate hidden form inputs for Webflow
-  const productsString = state.cart.map((product) => {
+  updateHiddenFields();
+}
+
+// Helper function to generate products string from cart
+function getProductsString() {
+  return state.cart.map((product) => {
     const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
     const openingText = product.opening ? ` - ${product.opening}` : '';
     const colorText = product.color === 'Altă culoare' && product.customColor
@@ -699,40 +704,51 @@ function renderCart() {
       : product.color;
     return `${product.quantity}x ${product.frameName} - ${glassText} - ${colorText}${openingText} - ${product.width}x${product.height}cm - €${product.calculatedPrice.toFixed(2)}`;
   }).join(' | ');
-
-  // Populate the form fields with cart data
-  populateFormFields(productsString, total);
 }
 
-function populateFormFields(productsString, total) {
-  let formProducts = document.getElementById('formProducts');
-  let formTotal = document.getElementById('formTotal');
+// Helper function to get cart total
+function getCartTotal() {
+  return state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
+}
 
-  // If fields don't exist, try to initialize form and retry
+// Update hidden form fields with current cart data
+function updateHiddenFields() {
+  const formProducts = document.getElementById('formProducts');
+  const formTotal = document.getElementById('formTotal');
+
   if (!formProducts || !formTotal) {
-    console.log('[Cart] Form fields not found, initializing form...');
-    initWebflowForm();
-
-    // Check again after a short delay (form might need time to initialize)
-    setTimeout(() => {
-      formProducts = document.getElementById('formProducts');
-      formTotal = document.getElementById('formTotal');
-
-      if (formProducts) {
-        formProducts.value = productsString;
-        console.log('[Cart] Set formProducts (delayed):', productsString);
-      }
-      if (formTotal) {
-        formTotal.value = total.toFixed(2);
-        console.log('[Cart] Set formTotal (delayed):', total.toFixed(2));
-      }
-    }, 200);
-    return;
+    console.log('[Form] Hidden fields not found yet');
+    return false;
   }
+
+  const productsString = getProductsString();
+  const total = getCartTotal();
 
   formProducts.value = productsString;
   formTotal.value = total.toFixed(2);
-  console.log('[Cart] Set form fields - products:', productsString, 'total:', total.toFixed(2));
+
+  // Also set the attribute directly (some form handlers read attributes)
+  formProducts.setAttribute('value', productsString);
+  formTotal.setAttribute('value', total.toFixed(2));
+
+  console.log('[Form] Updated hidden fields - products:', productsString, 'total:', total.toFixed(2));
+  return true;
+}
+
+function populateFormFields() {
+  // Try to update hidden fields directly
+  if (updateHiddenFields()) {
+    return;
+  }
+
+  // If fields don't exist, try to initialize form and retry
+  console.log('[Cart] Form fields not found, initializing form...');
+  initWebflowForm();
+
+  // Check again after a short delay (form might need time to initialize)
+  setTimeout(() => {
+    updateHiddenFields();
+  }, 200);
 }
 
 function editProduct(index) {
@@ -1009,30 +1025,44 @@ function initWebflowForm() {
   submitBtn.className = 'form-submit';
   formWrapper.appendChild(submitBtn);
 
-  // Hidden fields (formProducts, formTotal) are added via Webflow Embed:
-  // <input type="hidden" id="formProducts" name="products" value="">
-  // <input type="hidden" id="formTotal" name="total" value="">
+  // Create hidden fields via JS to ensure they exist and are inside the form
+  // (Don't rely on Webflow Embed - Webflow's AJAX may not pick them up)
+  let formProducts = document.getElementById('formProducts');
+  let formTotal = document.getElementById('formTotal');
 
-  // Populate hidden fields on form submit
+  // Remove any existing hidden fields (might be outside form or duplicated)
+  if (formProducts) formProducts.remove();
+  if (formTotal) formTotal.remove();
+
+  // Create fresh hidden fields inside the form
+  formProducts = document.createElement('input');
+  formProducts.type = 'hidden';
+  formProducts.id = 'formProducts';
+  formProducts.name = 'products';
+  formProducts.value = '';
+  form.appendChild(formProducts);
+
+  formTotal = document.createElement('input');
+  formTotal.type = 'hidden';
+  formTotal.id = 'formTotal';
+  formTotal.name = 'total';
+  formTotal.value = '';
+  form.appendChild(formTotal);
+
+  console.log('[Form] Created hidden fields inside form:', formProducts, formTotal);
+
+  // Immediately populate with current cart data
+  updateHiddenFields();
+
+  // Populate hidden fields on form submit (backup)
   form.addEventListener('submit', function(e) {
-    const formProducts = document.getElementById('formProducts');
-    const formTotal = document.getElementById('formTotal');
+    updateHiddenFields();
+    console.log('[Form] Submit - products:', formProducts.value, 'total:', formTotal.value);
+  });
 
-    if (formProducts && formTotal) {
-      const productsString = state.cart.map((product) => {
-        const glassText = product.hasGlass ? 'Cu sticlă' : 'Fără sticlă';
-        const openingText = product.opening ? ` - ${product.opening}` : '';
-        const colorText = product.color === 'Altă culoare' && product.customColor
-          ? product.customColor
-          : product.color;
-        return `${product.quantity}x ${product.frameName} - ${glassText} - ${colorText}${openingText} - ${product.width}x${product.height}cm - €${product.calculatedPrice.toFixed(2)}`;
-      }).join(' | ');
-      const total = state.cart.reduce((sum, p) => sum + p.calculatedPrice, 0);
-
-      formProducts.value = productsString;
-      formTotal.value = total.toFixed(2);
-      console.log('[Form] Populated hidden fields:', productsString, total.toFixed(2));
-    }
+  // Also intercept Webflow's form serialization by updating on any input focus
+  form.addEventListener('focusin', function() {
+    updateHiddenFields();
   });
 
   console.log('[Form] Created form fields via JS');
